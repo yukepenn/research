@@ -16,7 +16,7 @@ fixed_effects: ["method", "transform", "model", "schema_length", "task_difficult
 model_formula: "logit(P(success)) ~ method*transform*model + task_difficulty + schema_length + (1|task_family) + (1|base_task)"
 confidence_level: 0.95
 practical_margin: ">=5 absolute points degradation recovered on held-out families OR >=20% sensitivity-AUC improvement; token overhead <= bound fixed after pilot"
-missing_data_policy: "API timeout/outage/malformed/sandbox-crash/refusal recorded in exclusions.csv with reason; true agent failures are NOT excluded"
+missing_data_policy: "Excluded (infra): API/provider timeout, provider outage, sandbox crash, malformed-CLI-output -> exclusions.csv. COUNTED as agent failures (NOT excluded): max_steps timeout (agent looped/did not finish in the step budget) and refusals — these are genuine agent outcomes (manual 14.5). The Claude/enum max_steps timeout in the 2026-06-25 pilot is therefore COUNTED (enum=0.80), and no episodes are excluded (80 valid)."
 rerun_policy: "reruns only for infra failures, all logged with rerun_of in ledger"
 exclusion_policy: "predefined categories only; no post-hoc exclusion after seeing sealed results"
 multiple_testing: "Benjamini-Hochberg over secondary defect/transform families; primary not data-driven"
