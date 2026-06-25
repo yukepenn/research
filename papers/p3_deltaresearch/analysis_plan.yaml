@@ -1,21 +1,28 @@
-version: 0.1
+version: 0.2-draft   # NOT frozen; freeze at PROTOCOL_FROZEN after pilot
 frozen_at: null
 protocol_hash: null
-primary_hypothesis: null
-primary_endpoint: null
-analysis_population: null
-independent_unit: null
-random_effects: []
-fixed_effects: []
-model_formula: null
+primary_hypothesis: >
+  H3: typed dependency edges add affected-claim recall AND derived/temporal/computed-claim
+  correctness beyond a flat claim-citation ledger; H4: a constrained patch reduces unaffected
+  drift at equal-or-better affected recall vs full regeneration; gated by H_DIVERGE (evidence-
+  world delta behaves differently from an equivalent author edit).
+primary_endpoint: >
+  Pre-registered combined score over Affected-Claim Recall (ACR) and Unaffected-Claim
+  Preservation (UCP), reported JOINTLY (not a maskable single average), on held-out
+  source/update families; controlled and real subsets reported separately.
+analysis_population: "controlled + real versioned worlds with programmatic/adjudicated gold; pilot worlds excluded from confirmatory set"
+independent_unit: evidence world (cluster); claims nested within report
+random_effects: ["world", "source_family"]
+fixed_effects: ["method", "update_type", "domain", "initial_report_quality"]
+model_formula: "outcome ~ method*update_type*domain + initial_report_quality + (1|world) + (1|report)"
 confidence_level: 0.95
-practical_margin: null
-missing_data_policy: null
-rerun_policy: null
-exclusion_policy: null
-multiple_testing: null
-secondary_endpoints: []
-exploratory_analyses: []
-robustness_checks: []
-power_simulation_commit: null
-sealed_result_access: null
+practical_margin: "typed graph improves ACR or UCP with the other not materially worse, by a pre-set margin (after pilot); must hold on the real subset"
+missing_data_policy: "patch-application/tool failures -> exclusions.csv; genuine method failures retained"
+rerun_policy: "infra-failure reruns only, logged"
+exclusion_policy: "predefined; no post-hoc world exclusion after unseal"
+multiple_testing: "Benjamini-Hochberg over update types; primary (H3,H4) not data-driven"
+secondary_endpoints: ["stale_residual_rate", "spurious_revision_rate", "unsupported_new_rate", "citation_freshness", "calculation_correctness", "conflict_honesty", "update tokens/latency", "audit-trail completeness"]
+exploratory_analyses: ["update_type x method failure heatmap", "typed-edge ablation (which edge types matter)", "sequential cumulative-drift (secondary)"]
+robustness_checks: ["controlled vs real transfer", "held-out domain/update-type/source-org", "initial report from unseen model", "long reports / multi-hop", "LLM-judge vs deterministic-gold agreement on real subset", "H_DIVERGE on multiple worlds"]
+power_simulation_commit: null   # core.statistics.power on world-clustered ACR/UCP after pilot variance
+sealed_result_access: "gold impact sets held by Test Custodian until freeze; update agents never see gold A/U/N/C"

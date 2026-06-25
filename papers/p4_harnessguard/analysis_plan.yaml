@@ -1,21 +1,28 @@
-version: 0.1
+version: 0.2-draft   # NOT frozen; freeze at PROTOCOL_FROZEN after pilot
 frozen_at: null
 protocol_hash: null
-primary_hypothesis: null
-primary_endpoint: null
-analysis_population: null
-independent_unit: null
-random_effects: []
-fixed_effects: []
-model_formula: null
+primary_hypothesis: >
+  H2 (HARD GATE): edit-conditioned canary selection beats random at the SAME budget on
+  hidden-regression recall, on HELD-OUT edits; H5: the risk model generalizes to held-out
+  edit type / task family / model family. If random ties selection across regimes, convert
+  to a negative-result note.
+primary_endpoint: >
+  Regression recall at fixed canary budget on held-out edits (leave-one-lineage-out and
+  leave-one-component-out), and dangerous false-acceptance rate; reported as a risk-coverage
+  curve with edit-group bootstrap CIs.
+analysis_population: "independent harness edits (real + controlled + optimizer-generated) with paired old/new ground truth; pilot edits excluded from confirmatory set"
+independent_unit: harness edit (cluster by lineage); tasks nested within
+random_effects: ["edit_lineage", "task_family"]
+fixed_effects: ["method", "budget", "edit_component"]
+model_formula: "logit(P(regression_detected)) ~ method*budget*edit_component + (1|edit_lineage) + (1|task_family)"
 confidence_level: 0.95
-practical_margin: null
-missing_data_policy: null
-rerun_policy: null
-exclusion_policy: null
-multiple_testing: null
-secondary_endpoints: []
-exploratory_analyses: []
-robustness_checks: []
-power_simulation_commit: null
-sealed_result_access: null
+practical_margin: "selector beats random at matched budget by a pre-set recall margin on >=2 held-out splits (set after pilot)"
+missing_data_policy: "infra failures -> exclusions.csv; true agent failures retained as outcomes"
+rerun_policy: "repeats only for unstable task/model cells, logged"
+exclusion_policy: "predefined; no post-hoc edit exclusion after unseal"
+multiple_testing: "Benjamini-Hochberg over components; primary (H2,H5) not data-driven"
+secondary_endpoints: ["precision of regression alarm", "average canary cost", "time-to-detection", "worst-group recall", "calibration error", "ACCEPT/REJECT/ESCALATE distribution", "improvement preserved", "full-suite cost saved"]
+exploratory_analyses: ["per-component regression rates", "edit-conditioning ablation (structured edit repr vs edit-agnostic)", "AgentAssay-style trials-per-test stacking"]
+robustness_checks: ["leave-one-component-out", "leave-one-lineage-out", "held-out model family", "held-out task family", "real vs controlled vs optimizer-generated separately", "Wilson/Clopper-Pearson on false-safe"]
+power_simulation_commit: null   # core.statistics.power adapted to edit-clustered recall after pilot variance
+sealed_result_access: "full-suite regression labels held by Test Custodian; selector reads only train/dev full outcomes until freeze"

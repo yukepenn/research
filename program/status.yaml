@@ -29,7 +29,8 @@ portfolio:
     next_gate: PILOT
     novelty_note: "AgentAssay(2603.02601) owns cheap testing+abstention; TDAD owns diff-conditioned RTS. Survival=edit-conditioned diversity canary selection + OOD selector. H2 (selection>random) is a HARD KILL GATE."
 common:
-  infrastructure_state: CORE_READY
+  infrastructure_state: TIER0_COMPLETE   # kernel+infra+all 4 papers' deterministic components built & tested
+  tests_passing: 97
   budget_state: UNCONFIGURED
   integrity_alerts:
     - "All 5 anchor sources verified real (AHE, Mr.DRE, TSCG, Refute-or-Promote, Code-as-Harness)."

@@ -1,21 +1,28 @@
-version: 0.1
+version: 0.2-draft   # NOT frozen; freeze at PROTOCOL_FROZEN after pilot
 frozen_at: null
 protocol_hash: null
-primary_hypothesis: null
-primary_endpoint: null
-analysis_population: null
-independent_unit: null
-random_effects: []
-fixed_effects: []
-model_formula: null
+primary_hypothesis: >
+  H2: at matched budget, cross-family review does NOT beat giving the author equal extra
+  compute on average final-patch correctness; AND H5: a pre-call ReviewRoute router improves
+  the held-out-repository cost-correctness frontier over the strongest fixed policy.
+primary_endpoint: >
+  Equal-budget final-patch correctness (deterministic hidden tests) across workflows; and
+  ReviewRoute held-out-repository utility = P(final_correct) - lambda_cost*cost
+  - lambda_latency*latency, reported as paired differences vs always-cross / always-self /
+  always-stronger-solo across a lambda grid (not a single best point).
+analysis_population: "near-miss + controlled-defect patches with deterministic hidden tests; pilot repos excluded from confirmatory test set"
+independent_unit: repository (cluster); patches/tasks nested within
+random_effects: ["repository", "task"]
+fixed_effects: ["workflow", "author_model", "reviewer_model", "defect_type", "budget"]
+model_formula: "logit(P(final_correct)) ~ workflow*author_model*reviewer_model + defect_type + budget + (1|repository) + (1|task)"
 confidence_level: 0.95
-practical_margin: null
-missing_data_policy: null
-rerun_policy: null
-exclusion_policy: null
-multiple_testing: null
-secondary_endpoints: []
-exploratory_analyses: []
-robustness_checks: []
-power_simulation_commit: null
-sealed_result_access: null
+practical_margin: "router beats best fixed policy by a pre-set utility margin on held-out repos at >=1 budget; set after pilot"
+missing_data_policy: "API/sandbox failures -> exclusions.csv with reason; true agent failures retained"
+rerun_policy: "infra-failure reruns only, logged with rerun_of"
+exclusion_policy: "predefined categories only; no post-hoc exclusion after sealed unseal"
+multiple_testing: "Benjamini-Hochberg over defect categories; primary (H2,H5) not data-driven"
+secondary_endpoints: ["defect recall/precision", "false-positive findings", "review-induced regression rate", "cost per corrected patch", "latency", "pair-specific complementarity", "test-generation yield"]
+exploratory_analyses: ["author x reviewer complementarity heatmap", "same vs cross error correlation", "context-separation control (same-family fresh)"]
+robustness_checks: ["token-matched vs dollar-matched vs natural budget", "held-out defect categories", "held-out author model", "language shift Py->JS/TS", "controlled vs natural near-miss transfer", "human-audited 10-20% findings (Krippendorff alpha)"]
+power_simulation_commit: null   # core.statistics.power applied to repo-clustered correctness after pilot variance
+sealed_result_access: "Test Custodian holds hidden tests + held-out repos until freeze; router never reads test-repo identity"
