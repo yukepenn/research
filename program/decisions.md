@@ -20,6 +20,21 @@
 - **D6 No paid experiments yet.** All four sit at NOVELTY_PASS_NARROWED → PILOT. Pilots need the
   human budget/credential gate; until then, only Tier-0 deterministic engineering proceeds.
 
+## 2026-06-25 — cycle 2 (real-evidence pilots, no paid API)
+
+- **D7 Zero-cost real evidence.** Per user, no metered API spend: use existing Claude + Codex
+  subscriptions via their CLIs. Built a plan-then-execute / -patch / -repair harness (we control
+  execution + deterministic oracles) — unified-harness, not product-loop. GitHub: pushed to
+  https://github.com/yukepenn/research (private, cached GCM token).
+- **D8 P1 pilot diagnosed + fixed a confound.** First (single-shot) run floored baseline at 0.40
+  because the model couldn't reference server-assigned ids; rebuilt as an interactive harness
+  (baseline 1.0) and excluded the confounded run (exclusions.csv). Real finding: enum-encoding
+  degrades both Claude and Codex; nesting/lexical robust.
+- **D9 KILL P4 HarnessGuard.** Evidence-driven early kill (NOT novelty — it passed NARROW). Reasons:
+  worst fit for the zero-cost single-shot pipeline, H2 has verified counter-evidence, heaviest data
+  need. Tier-0 preserved as reusable infra. See papers/p4_harnessguard/KILL_MEMO.md. Focus now:
+  **P1, P2, P3 only.**
+
 ### Human decisions pending
 1. Configure provider credentials + hard budget ceilings (no secrets in repo).
 2. Approve the four narrowed central claims and venue targets.

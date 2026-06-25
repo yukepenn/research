@@ -23,12 +23,13 @@ portfolio:
     next_gate: PILOT
     novelty_note: "EditPropBench(2605.02083) owns dual metric; Mr.DRE owns phenomenon. Survival=typed-graph patch winning over flat ledger+full regen on evidence-WORLD delta; gated by H_DIVERGE."
   p4_harnessguard:
-    state: NOVELTY_PASS_NARROWED
-    confidence: 0.40
-    active_issues: [P4-EDIT, P4-TASK, P4-GT, P4-FEAT, P4-SELECT]
-    blockers: ["full old/new ground truth needs credentials + budget (HUMAN GATE)", "needs >=25 independent edits for flagship"]
-    next_gate: PILOT
-    novelty_note: "AgentAssay(2603.02601) owns cheap testing+abstention; TDAD owns diff-conditioned RTS. Survival=edit-conditioned diversity canary selection + OOD selector. H2 (selection>random) is a HARD KILL GATE."
+    state: KILLED
+    confidence: 0.0
+    active_issues: []
+    blockers: []
+    next_gate: none
+    kill_reason: "KILLED 2026-06-25 (not novelty — passed NARROW). Feasibility + falsification risk: worst fit for the zero-cost single-shot pipeline (needs interactive harness), H2 has verified counter-evidence (2409.03563, 2510.08730), heaviest data need. Deterministic Tier-0 preserved as reusable infra. See papers/p4_harnessguard/KILL_MEMO.md. Resources redirected to P1/P2/P3."
+    novelty_note: "AgentAssay(2603.02601) owns cheap testing+abstention; TDAD owns diff-conditioned RTS. Survival core existed (edit-conditioned selection + OOD selector) but not pursued."
 common:
   infrastructure_state: TIER0_COMPLETE   # kernel+infra+all 4 papers' deterministic components built & tested
   tests_passing: 97
