@@ -6,7 +6,7 @@ portfolio:
     active_issues: [P1-PILOT-INTERACTIVE-done, P1-SCALE, P1-STNF-RECOVERY, P1-RANKING]
     blockers: []
     next_gate: PILOT_PASS
-    pilot_evidence: "Real Claude+Codex (interactive, no API cost): enum_encoding degrades both (claude -20pt, codex -11pt); structural_nesting & lexical_aliasing robust (0). Baseline 1.0 after fixing single-shot id confound. Only 1 of 3 families degrades -> not yet PILOT_PASS; need more transforms/tasks + STNF recovery on enum. See papers/p1_toolmorph/evidence/pilot_2026-06-25.md"
+    pilot_evidence: "Real Claude+Codex (interactive, no API cost): enum_encoding small drop (Claude -0.20 CI[-0.50,0], Codex -0.10 CI[-0.30,0]) -- both CIs include 0, NOT significant (directional pilot signal); structural/lexical no drop (1.0 ceiling). 80 episodes none excluded. H1 PARTIAL; H4 ranking REFUTED; H5 STNF remedy UNRUN (pre-registered). See papers/p1_toolmorph/evidence/pilot_2026-06-25.md"
     novelty_note: "PIPE(2602.01611) occupies EQ+META; re-architected around label-free STNF transfer to UNSEEN transforms. KILL if content-control erases effect AND STNF cannot beat description-rewrite."
   p2_crosscheck:
     state: PILOT_RUNNING
@@ -43,7 +43,7 @@ common:
   integrity_alerts:
     - "All 5 anchor sources verified real (AHE, Mr.DRE, TSCG, Refute-or-Promote, Code-as-Harness)."
     - "All 4 top collision papers verified real (PIPE 2602.01611, EditPropBench 2605.02083, AgentAssay 2603.02601, cc02 KDD'26)."
-    - "No fatal collision found; all four NARROWED, none KILLED."
+    - "Cycle 1: no fatal collision; all four NARROWED. Cycle 2: P4 later KILLED (feasibility/falsification, not novelty)."
 human_decisions_required:
   - "Configure provider credentials and hard budget ceilings (program/budget.yaml + program/pricing.yaml) without committing secrets — required before any paid pilot."
   - "Approve narrowed central claims and venue targets before any external action."
