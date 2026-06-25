@@ -1,21 +1,27 @@
-version: 0.1
+version: 0.2-draft   # NOT frozen; frozen_at set only at PROTOCOL_FROZEN after pilot
 frozen_at: null
 protocol_hash: null
-primary_hypothesis: null
-primary_endpoint: null
-analysis_population: null
-independent_unit: null
-random_effects: []
-fixed_effects: []
-model_formula: null
+primary_hypothesis: >
+  H5: automatic (label-free) STNF reduces transformation-induced success degradation and
+  ranking instability on HELD-OUT transform families and tools, vs the strongest non-oracle
+  baseline (token/content-matched description rewrite), at acceptable cost.
+primary_endpoint: >
+  Reduction in paired success sensitivity on HELD-OUT transform families:
+  Delta_recovered = (success_STNF_on_heldout - success_nofix_on_heldout), reported with a
+  task-clustered 95% CI; secondary primary: rank-instability (1 - Kendall tau) reduction.
+analysis_population: "paired episodes on held-out transform families x held-out tools; pilot tasks excluded from confirmatory set"
+independent_unit: base task (cluster); models nested within task
+random_effects: ["task_family", "base_task"]
+fixed_effects: ["method", "transform", "model", "schema_length", "task_difficulty"]
+model_formula: "logit(P(success)) ~ method*transform*model + task_difficulty + schema_length + (1|task_family) + (1|base_task)"
 confidence_level: 0.95
-practical_margin: null
-missing_data_policy: null
-rerun_policy: null
-exclusion_policy: null
-multiple_testing: null
-secondary_endpoints: []
-exploratory_analyses: []
-robustness_checks: []
-power_simulation_commit: null
-sealed_result_access: null
+practical_margin: ">=5 absolute points degradation recovered on held-out families OR >=20% sensitivity-AUC improvement; token overhead <= bound fixed after pilot"
+missing_data_policy: "API timeout/outage/malformed/sandbox-crash/refusal recorded in exclusions.csv with reason; true agent failures are NOT excluded"
+rerun_policy: "reruns only for infra failures, all logged with rerun_of in ledger"
+exclusion_policy: "predefined categories only; no post-hoc exclusion after seeing sealed results"
+multiple_testing: "Benjamini-Hochberg over secondary defect/transform families; primary not data-driven"
+secondary_endpoints: ["invalid call rate", "semantic argument error", "error recovery rate", "token/cost/latency", "compiler contract accuracy", "state-transition correctness (always 1.0 by construction)"]
+exploratory_analyses: ["per-family degradation heatmap", "failure-layer decomposition (selection/argument/interpretation/recovery/stopping)"]
+robustness_checks: ["alternate model family", "alternate domain", "content/token-matched control (H3)", "seed sensitivity", "static vs +LLM vs +probe STNF ablation", "composed-transform stress"]
+power_simulation_commit: null   # papers/p1_toolmorph/statistics/power_simulation.py after pilot variance estimates
+sealed_result_access: "Test Custodian only until protocol freeze; method builders never read held-out transform labels"
