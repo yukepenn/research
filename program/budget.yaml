@@ -1,0 +1,29 @@
+currency: USD
+hard_stop_enabled: true
+portfolio_limit: null
+papers:
+  p1_toolmorph:
+    literature_search: null
+    pilot_api: null
+    full_api: null
+    compute_storage: null
+    contingency: null
+  p2_crosscheck:
+    literature_search: null
+    pilot_api: null
+    full_api: null
+    compute_storage: null
+    contingency: null
+  p3_deltaresearch:
+    literature_search: null
+    pilot_api: null
+    full_api: null
+    compute_storage: null
+    contingency: null
+  p4_harnessguard:
+    literature_search: null
+    pilot_api: null
+    full_api: null
+    compute_storage: null
+    contingency: null
+alerts_at_fraction: [0.5, 0.8, 1.0]

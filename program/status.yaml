@@ -1,0 +1,32 @@
+program_date: "2026-06-25"
+portfolio:
+  p1_toolmorph:
+    state: IDEA
+    confidence: 0.50
+    active_issues: []
+    blockers: []
+    next_gate: NOVELTY_AUDIT
+  p2_crosscheck:
+    state: IDEA
+    confidence: 0.50
+    active_issues: []
+    blockers: []
+    next_gate: NOVELTY_AUDIT
+  p3_deltaresearch:
+    state: IDEA
+    confidence: 0.50
+    active_issues: []
+    blockers: []
+    next_gate: NOVELTY_AUDIT
+  p4_harnessguard:
+    state: IDEA
+    confidence: 0.50
+    active_issues: []
+    blockers: []
+    next_gate: NOVELTY_AUDIT
+common:
+  infrastructure_state: NOT_STARTED
+  budget_state: UNCONFIGURED
+  integrity_alerts: []
+human_decisions_required:
+  - "Configure provider credentials and hard budget ceilings without committing secrets."

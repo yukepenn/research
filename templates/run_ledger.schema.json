@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agent Research Run Ledger Entry",
+  "type": "object",
+  "required": [
+    "run_id", "paper_id", "git_commit", "task_hash", "environment_hash",
+    "model_provider", "model_id", "harness_hash", "oracle_version",
+    "started_at", "status", "raw_trace_hash"
+  ],
+  "properties": {
+    "run_id": {"type": "string"},
+    "paper_id": {"enum": ["p1_toolmorph", "p2_crosscheck", "p3_deltaresearch", "p4_harnessguard"]},
+    "git_commit": {"type": "string"},
+    "task_hash": {"type": "string"},
+    "environment_hash": {"type": "string"},
+    "model_provider": {"type": "string"},
+    "model_id": {"type": "string"},
+    "model_snapshot_date": {"type": ["string", "null"]},
+    "system_prompt_hash": {"type": ["string", "null"]},
+    "tool_schema_hash": {"type": ["string", "null"]},
+    "harness_hash": {"type": "string"},
+    "seed": {"type": ["integer", "string", "null"]},
+    "started_at": {"type": "string"},
+    "ended_at": {"type": ["string", "null"]},
+    "status": {"enum": ["SUCCESS", "AGENT_FAILURE", "INFRA_FAILURE", "TIMEOUT", "COST_LIMIT", "REFUSAL", "EXCLUDED"]},
+    "token_input": {"type": ["integer", "null"]},
+    "token_output": {"type": ["integer", "null"]},
+    "cost_usd": {"type": ["number", "null"]},
+    "latency_seconds": {"type": ["number", "null"]},
+    "raw_trace_hash": {"type": "string"},
+    "oracle_version": {"type": "string"},
+    "result": {},
+    "rerun_of": {"type": ["string", "null"]},
+    "notes": {"type": ["string", "null"]}
+  },
+  "additionalProperties": true
+}

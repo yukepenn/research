@@ -1,0 +1,34 @@
+as_of: "2026-06-25"
+official_only: true
+venues:
+  fse_2027:
+    paper: p2_crosscheck
+    full_submission_aoe: "2026-10-02"
+    author_response_start: "2026-12-14"
+    author_response_end: "2026-12-18"
+    initial_notification: "2027-01-22"
+    major_revision: "2027-03-05"
+    final_notification: "2027-03-31"
+    status: VERIFIED_OFFICIAL
+  arr_august_2026:
+    paper: p3_deltaresearch
+    submission: "2026-08-03"
+    cycle_end: "2026-10-11"
+    status: VERIFIED_OFFICIAL
+  arr_october_2026:
+    paper: p3_deltaresearch
+    submission: "2026-10-12"
+    cycle_end: "2026-12-20"
+    status: VERIFIED_OFFICIAL
+  tmlr:
+    papers: [p1_toolmorph, p3_deltaresearch, p4_harnessguard]
+    schedule: rolling
+    status: VERIFIED_OFFICIAL
+  mlsys_2027:
+    papers: [p1_toolmorph, p4_harnessguard]
+    deadline: null
+    status: NOT_YET_VERIFIED_OR_ANNOUNCED
+  iclr_2027:
+    papers: [p1_toolmorph, p4_harnessguard]
+    deadline: null
+    status: NOT_YET_VERIFIED_OR_ANNOUNCED

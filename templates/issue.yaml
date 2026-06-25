@@ -1,0 +1,12 @@
+issue_id: null
+paper: null
+role: null
+objective: null
+inputs: []
+allowed_paths: []
+forbidden_paths: []
+acceptance_tests: []
+artifacts: []
+dependencies: []
+budget_limit: null
+failure_policy: "Return FAIL with evidence and a minimal counterexample. Do not silently weaken the specification."
