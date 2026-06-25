@@ -11,3 +11,5 @@ venv/
 node_modules/
 artifacts/raw_private/
 sealed_tests/**/labels/
+
+artifacts/pilot_smoke.jsonl
