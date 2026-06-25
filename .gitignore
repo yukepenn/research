@@ -20,3 +20,5 @@ artifacts/p3v2_calib.jsonl
 artifacts/p3v2_confirmatory.json
 
 artifacts/p3v2_vague_result.json
+
+artifacts/p2_hard_result.json
