@@ -1,0 +1,1 @@
+{"author_fix":"def normalize(s):\n    return s.strip().lower()\n\n\ndef dedup(xs):\n    return sorted(set(x.strip().lower() for x in xs))","self_improved":"def normalize(s):\n    return s.strip().lower()\n\n\ndef dedup(xs):\n    return sorted(set(normalize(x) for x in xs))"}

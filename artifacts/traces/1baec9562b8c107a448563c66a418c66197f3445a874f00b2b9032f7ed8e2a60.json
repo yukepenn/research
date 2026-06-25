@@ -1,0 +1,1 @@
+{"author_fix":"def parse_positive(s):\n    n = int(s)\n    if n <= 0:\n        raise ValueError(\"input must be positive\")\n    return n"}

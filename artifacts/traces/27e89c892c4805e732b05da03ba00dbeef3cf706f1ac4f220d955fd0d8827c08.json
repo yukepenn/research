@@ -1,0 +1,1 @@
+{"author_fix":"def _canonical(s):\n    return s.strip().lower()\n\ndef normalize(s):\n    return _canonical(s)\n\ndef dedup(xs):\n    return sorted(set(_canonical(x) for x in xs))"}

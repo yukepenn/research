@@ -279,7 +279,10 @@ _CASES: list[MutationCase] = [
             "    return {'items': set(items)}\n"   # not JSON-serialisable
         ),
         hidden_test=_t_type_serialization,
-        description="JSON payload with a list; mutant emits a set.",
+        description=("to_payload(items) must return {'items': <the items as a JSON-serializable "
+                     "list sorted in ascending order>}; the mutant emits a set (not "
+                     "JSON-serializable and unordered). E.g. to_payload([3,1,2]) -> "
+                     "{'items':[1,2,3]}."),
     ),
     MutationCase(
         case_id="state_order_withdraw",
@@ -358,7 +361,10 @@ _CASES: list[MutationCase] = [
             "    return sorted(set(normalize(x) for x in xs))\n"
         ),
         hidden_test=_t_collateral_regression,
-        description="edit to normalize() silently changes dedup() semantics.",
+        description=("normalize(s) must strip surrounding whitespace ONLY and must NOT change "
+                     "case, so dedup keeps case-distinct entries separate: "
+                     "dedup(['A',' a ','A']) -> ['A','a']. The mutant added .lower(), which "
+                     "silently merges 'A' and 'a'. Fix normalize without changing dedup."),
     ),
 ]
 

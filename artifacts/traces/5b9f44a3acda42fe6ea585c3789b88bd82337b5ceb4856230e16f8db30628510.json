@@ -1,0 +1,1 @@
+{"author_fix":"def withdraw(acc, amt):\n    if acc['bal'] - amt < 0:\n        raise ValueError('insufficient funds')\n    acc['bal'] -= amt\n    return acc['bal']","reviewer_repair":"def withdraw(acc, amt):\n    if acc['bal'] - amt < 0:\n        raise ValueError('insufficient funds')\n    acc['bal'] -= amt\n    return acc['bal']"}

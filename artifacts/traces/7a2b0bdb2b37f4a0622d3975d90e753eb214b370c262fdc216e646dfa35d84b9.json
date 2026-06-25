@@ -1,0 +1,1 @@
+{"author_fix":"RATE = 0.2\n\ndef price_with_tax(p):\n    return round(p * (1 + RATE), 2)\n\ndef display_rate():\n    return str(int(RATE * 100)) + '%'","self_improved":"RATE = 0.2\n\ndef price_with_tax(p):\n    return round(p * (1 + RATE), 2)\n\ndef display_rate():\n    return str(int(RATE * 100)) + '%'"}

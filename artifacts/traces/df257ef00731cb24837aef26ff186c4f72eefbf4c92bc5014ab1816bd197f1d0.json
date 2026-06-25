@@ -1,0 +1,1 @@
+{"author_fix":"def to_payload(items):\n    return {'items': list(items)}"}

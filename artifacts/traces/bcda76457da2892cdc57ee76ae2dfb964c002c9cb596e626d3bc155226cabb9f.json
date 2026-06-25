@@ -1,0 +1,1 @@
+{"author_fix":"def rank(words):\n    return sorted(words, key=lambda w: (len(w), w))"}
