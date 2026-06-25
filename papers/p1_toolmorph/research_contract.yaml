@@ -1,27 +1,61 @@
-paper_id: null
-working_title: null
-state: IDEA
-central_claim: null
-falsifiable_hypotheses: []
-unit_of_analysis: null
-intervention: null
-primary_endpoint: null
-practical_effect_threshold: null
-strongest_baselines: []
-nearest_neighbors: []
-exact_novelty_delta: null
-pilot_design: null
-pilot_pass_rule: null
-kill_conditions: []
-full_study_design: null
-held_out_generalization: []
-main_figure: null
-main_table: null
-judge_independence: null
-statistics: null
-ethical_risks: []
-resource_budget: null
-target_venue: null
-sequential_backup_venue: null
-human_owner: null
-last_updated: null
+paper_id: p1_toolmorph
+working_title: "ToolMorph: A Label-Free Semantic Normal Form for Behavior-Preserving Tool-Interface Variation"
+state: NOVELTY_PASS_NARROWED
+# NARROWED on 2026-06-25 after novelty audit: PIPE (2602.01611) already occupies
+# "behavior-preserving interface rewrite + paired gap + multi-model". The paper is
+# re-architected around the NORMALIZATION remedy (the one unoccupied core).
+central_claim: >
+  A label-free Semantic Tool Normal Form (STNF), compiled from tool schemas without
+  access to transform ground truth, reduces transformation-induced success degradation
+  and model-ranking instability on HELD-OUT (unseen) state-transition-equivalent
+  interface transform families and tools, relative to the strongest non-oracle baseline,
+  at acceptable token/probe cost. The sensitivity phenomenon itself is treated as a
+  (carefully credited) setup, not the contribution.
+falsifiable_hypotheses:
+  - "H1 (phenomenon, setup): at least one strict state-transition-equivalent transform family causes significant paired success degradation."
+  - "H3 (content control): degradation persists after matching schema tokens / description length / information content (rebut Schema First 2603.13404). If it vanishes, the phenomenon claim fails."
+  - "H4 (ranking): model ranking under equivalent interfaces shows reproducible Kendall-tau < 1 reversals across >=6 models."
+  - "H5 (PRIMARY, remedy): automatic STNF improves success + ranking stability on HELD-OUT transform families and tools with NO transform labels at inference."
+unit_of_analysis: base task (clustered); models nested within task
+intervention: state-transition-equivalent tool-interface transform; STNF normalization layer
+primary_endpoint: >
+  Reduction in paired success sensitivity (and rank-instability) of automatic STNF vs the
+  strongest non-oracle baseline on HELD-OUT transform families (pre-registered split).
+practical_effect_threshold: ">=5 absolute points degradation recovered on held-out families, OR >=20% sensitivity-AUC improvement, with token overhead <= a pre-set bound (fixed after pilot)."
+strongest_baselines:
+  - original interface (no transform)
+  - transformed interface, no repair
+  - token/length/content-matched description rewrite
+  - few-shot tool-call examples
+  - deterministic schema-text compiler baseline (TSCG-style, 2605.04107)
+  - LLM tool-description rewrite (Learning-to-Rewrite-Tool-Descriptions, 2602.20426)
+  - Oracle Canonicalizer (upper bound, not a contribution)
+nearest_neighbors:
+  - {id: PIPE, arxiv: "2602.01611", note: "behavior-preserving interface rewrite + paired gap + multi-model; occupies EQ+META; HAS NO remedy", collision: high}
+  - {id: SchemaFirst, arxiv: "2603.13404", note: "identical tool semantics/info content; found semantics not representation is bottleneck; drives H3 content control", collision: high}
+  - {id: SemanticInvariance, arxiv: "2603.13173", note: "metamorphic semantics-preserving transforms + rank inversions on reasoning tasks", collision: medium}
+  - {id: TSCG, arxiv: "2605.04107", note: "deterministic schema compiler, fixed operators; baseline not collision", collision: medium}
+  - {id: RewriteToolDesc, arxiv: "2602.20426", note: "learned tool-description rewrite, unseen tools; baseline", collision: medium}
+exact_novelty_delta: >
+  A label-free canonical normal form that TRANSFERS to UNSEEN transform families (not just
+  unseen tools as in 2602.20426, and not fixed operators as in TSCG), audited byte-identical
+  state-transition equality, and a ranking-reversal-with-fix result. PIPE/ReliabilityBench
+  only diagnose; none provide a transferring remedy.
+pilot_design: "24 base tasks x 4 domains x 2 model families x (original + lexical + nesting + enum + response + error) x 3 repeats; + content-matched control; + 8-task Oracle Canonicalizer; + 50-trace manual failure taxonomy."
+pilot_pass_rule: "H1 holds on >=2 families across >=2 models/domains; H3 survives content matching; Oracle Canonicalizer recovers a clear fraction; failures classifiable to interface (not env bug)."
+kill_conditions:
+  - "Content-matching (H3) erases the effect AND STNF fails to beat 'do nothing' on PIPE-style aliases -> KILL (no defensible core)."
+  - "STNF cannot beat description-rewrite on held-out transform families -> KILL or downgrade to benchmark note."
+  - "Any transform shows nonzero semantic mismatch in property tests -> fix benchmark, never blame model."
+full_study_design: "72-120 tasks x 6 domains x >=6 strict families x >=3 model families x 2 repeats; held-out transform family + held-out domain + held-out tools; STNF ablation (static / +LLM / +probes)."
+held_out_generalization: ["held-out transform family", "held-out domain", "held-out tools", "compiler model != agent model", "composed-transform stress"]
+main_figure: "STNF recovery-vs-cost frontier on HELD-OUT transforms/tools (the remedy headline)."
+main_table: "Paired degradation per (model x family) + STNF recovery + ranking Kendall-tau restoration."
+judge_independence: "Primary endpoints are deterministic state oracles; no LLM judge in the primary path."
+statistics: "mixed-effects logistic (method*transform*model + (1|task_family)+(1|base_task)); task-cluster bootstrap; Kendall-tau bootstrap over tasks for ranking."
+ethical_risks: ["none beyond compute; synthetic environments only"]
+resource_budget: "Tier-0 done; pilot/full require provider credentials + budget (HUMAN GATE)."
+target_venue: "MLSys 2027 / ICLR 2027 (flagship, if STNF transfer strong); TMLR (rolling) otherwise."
+sequential_backup_venue: TMLR
+human_owner: "yuke.z@wustl.edu"
+last_updated: "2026-06-25"

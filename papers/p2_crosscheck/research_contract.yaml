@@ -1,27 +1,62 @@
-paper_id: null
-working_title: null
-state: IDEA
-central_claim: null
-falsifiable_hypotheses: []
-unit_of_analysis: null
-intervention: null
-primary_endpoint: null
-practical_effect_threshold: null
-strongest_baselines: []
-nearest_neighbors: []
-exact_novelty_delta: null
-pilot_design: null
-pilot_pass_rule: null
-kill_conditions: []
-full_study_design: null
-held_out_generalization: []
-main_figure: null
-main_table: null
-judge_independence: null
-statistics: null
-ethical_risks: []
-resource_budget: null
-target_venue: null
-sequential_backup_venue: null
-human_owner: null
-last_updated: null
+paper_id: p2_crosscheck
+working_title: "CrossCheck: Budget-Matched, Error-Correlation-Aware Routing for Heterogeneous Code Review"
+state: NOVELTY_PASS_NARROWED
+# NARROWED 2026-06-25: cc02 (Cross-Model LLM Code Review, KDD'26, Xiang et al.) already
+# does the bidirectional Claude<->Codex 2x2 incl. self-review and found cross-model review
+# is direction-dependent and not inherently better than the stronger model solo. Survival
+# lives in the CONJUNCTION below; each individual delta has a strong neighbor.
+central_claim: >
+  The net value of heterogeneous code review is governed by defect-type-conditioned
+  author-reviewer error complementarity, NOT raw reviewer strength; (i) under STRICT budget
+  matching against giving the same author equal extra compute, cross-review does not
+  dominate; (ii) a pre-call router over {no-review, self, same-family, cross-family,
+  test-gen, reimplementation}, using only pre-review features, improves the held-out
+  cost-correctness Pareto frontier over always-cross, always-self, and always-stronger-solo.
+falsifiable_hypotheses:
+  - "H1: heterogeneous review does not dominate all baselines on average; gains concentrate by defect/category."
+  - "H2 (PRIMARY-A): at matched budget, cross-review does NOT beat author-extra-compute on average final-patch correctness (decisive, missing from cc02)."
+  - "H3: a defect-type-conditioned author x reviewer complementarity interaction survives after controlling for reviewer-strength main effects."
+  - "H5 (PRIMARY-B): a pre-call router improves held-out-repository cost-correctness frontier vs strongest fixed policy."
+unit_of_analysis: repository / task (clustered); patches nested within
+intervention: review workflow (8 conditions) + ReviewRoute router
+primary_endpoint: "Equal-budget final-patch correctness (hidden tests) + ReviewRoute held-out-repo cost-correctness frontier (paired differences, not best point)."
+practical_effect_threshold: "Router beats best fixed policy by a pre-set utility margin on held-out repos at >=1 budget; set after pilot."
+strongest_baselines:
+  - NO_REVIEW
+  - AUTHOR_MORE_COMPUTE (equal token/$ to the author; the decisive arm cc02 lacks)
+  - SELF_REVIEW
+  - SAME_FAMILY_FRESH (context-separation control, per cc08)
+  - CROSS_FAMILY_REVIEW
+  - TEST_GENERATION_ONLY
+  - INDEPENDENT_REIMPLEMENTATION
+  - always-stronger-solo (cc02 heuristic) / cc03 generation-router transplant / cc13 disagreement router
+exact_novelty_delta: >
+  The conjunction of (1) strict budget-matched author-extra-compute counterfactual,
+  (2) >=3-4-family bidirectional matrix isolating an author x reviewer interaction beyond
+  reviewer strength, and (3) a defect-type error-correlation model that PREDICTS review lift
+  and drives a pre-call held-out router with a correctness+regression endpoint. No neighbor
+  has all three; cc02 has the 2x2 on one pair with no budget match, no mechanism, no router.
+nearest_neighbors:
+  - {id: cc02, venue: "KDD'26 Agentic-SE workshop", note: "bidirectional Claude<->Codex 2x2 incl self-review; direction-dependent; NO budget-match, NO mechanism, NO router", collision: high}
+  - {id: cc01_refute_or_promote, arxiv: "2604.19049", note: "adversarial cross-model critique (anchor); detection not budget-matched correctness", collision: medium}
+  - {id: cc04, note: "theory: error-correlation + budget -> when collaboration pays (scalar, generic)", collision: medium}
+  - {id: cc05, note: "budget-matching erases multi-agent advantage in REASONING (not code)", collision: medium}
+  - {id: cc03, note: "generation routing (not review)", collision: low}
+pilot_design: "30 tasks x 2 author families -> 60+ near-miss patches x 5 core conditions (no_review, author_more_compute, self, same_family_fresh, cross_family); detection + repair scored separately."
+pilot_pass_rule: "A cross-family pair shows complementarity beyond reviewer strength on >=1 category; budget-matched net gain exists somewhere; hidden tests reliable; repo-level split feasible; false alarms controllable."
+kill_conditions:
+  - "All gains vanish after budget matching with tight CIs -> reframe as confirmatory negative result (code port of cc04/cc05/cc02)."
+  - "Results fully explained by one stronger model -> reviewer-selection study, not complementarity."
+  - "Router only memorizes repositories (held-out fails) -> drop routing contribution."
+full_study_design: "150-250 patches; >=3 model families full bidirectional matrix; 8 defect types; 10+ repos; held-out repos for router; 10-20% human-audited findings; product-layer ecological validation (secondary)."
+held_out_generalization: ["held-out repositories", "held-out defect categories", "held-out author model", "language shift (Py->JS/TS)", "controlled vs natural near-miss transfer"]
+main_figure: "Cost-correctness Pareto frontier by workflow + ReviewRoute + oracle router."
+main_table: "Per-defect-category: author residual, reviewer recall, false alarm, equal-budget final repair, new regression, cost."
+judge_independence: "Primary = deterministic hidden tests; LLM only as secondary, human-audited."
+statistics: "mixed-effects logistic (workflow*author*reviewer + defect_type + budget + (1|repo)+(1|task)); router nested CV outer=repository; FDR over defect categories."
+ethical_risks: ["use only permissively-licensed, containerizable repos; no production targets; defect study targets general correctness not exploits"]
+resource_budget: "Tier-0 deterministic data/harness first; model runs require credentials + budget (HUMAN GATE)."
+target_venue: "FSE 2027 Research Track (full paper deadline 2026-10-02 AoE)."
+sequential_backup_venue: "MLSys / TMLR (if more generic agent routing)"
+human_owner: "yuke.z@wustl.edu"
+last_updated: "2026-06-25"

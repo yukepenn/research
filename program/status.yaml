@@ -1,32 +1,40 @@
 program_date: "2026-06-25"
 portfolio:
   p1_toolmorph:
-    state: IDEA
-    confidence: 0.50
-    active_issues: []
-    blockers: []
-    next_gate: NOVELTY_AUDIT
+    state: NOVELTY_PASS_NARROWED
+    confidence: 0.45
+    active_issues: [P1-DATA, P1-DSL, P1-ORACLE, P1-PROPERTY, P1-METAMORPHIC]
+    blockers: ["pilot/full need provider credentials + budget (HUMAN GATE)"]
+    next_gate: PILOT
+    novelty_note: "PIPE(2602.01611) occupies EQ+META; re-architected around label-free STNF transfer to UNSEEN transforms. KILL if content-control erases effect AND STNF cannot beat description-rewrite."
   p2_crosscheck:
-    state: IDEA
-    confidence: 0.50
-    active_issues: []
-    blockers: []
-    next_gate: NOVELTY_AUDIT
+    state: NOVELTY_PASS_NARROWED
+    confidence: 0.45
+    active_issues: [P2-SPEC, P2-MUT, P2-HARNESS, P2-BUDGET]
+    blockers: ["model runs need credentials + budget (HUMAN GATE)"]
+    next_gate: PILOT
+    novelty_note: "cc02(KDD'26) owns bidirectional 2x2. Survival=conjunction: budget-matched author-extra-compute arm + defect-type complementarity + pre-call held-out router."
   p3_deltaresearch:
-    state: IDEA
-    confidence: 0.50
-    active_issues: []
-    blockers: []
-    next_gate: NOVELTY_AUDIT
+    state: NOVELTY_PASS_NARROWED
+    confidence: 0.45
+    active_issues: [P3-WORLD, P3-EVAL, P3-GRAPH, P3-DIVERGE]
+    blockers: ["agent runs need credentials + budget (HUMAN GATE)"]
+    next_gate: PILOT
+    novelty_note: "EditPropBench(2605.02083) owns dual metric; Mr.DRE owns phenomenon. Survival=typed-graph patch winning over flat ledger+full regen on evidence-WORLD delta; gated by H_DIVERGE."
   p4_harnessguard:
-    state: IDEA
-    confidence: 0.50
-    active_issues: []
-    blockers: []
-    next_gate: NOVELTY_AUDIT
+    state: NOVELTY_PASS_NARROWED
+    confidence: 0.40
+    active_issues: [P4-EDIT, P4-TASK, P4-GT, P4-FEAT, P4-SELECT]
+    blockers: ["full old/new ground truth needs credentials + budget (HUMAN GATE)", "needs >=25 independent edits for flagship"]
+    next_gate: PILOT
+    novelty_note: "AgentAssay(2603.02601) owns cheap testing+abstention; TDAD owns diff-conditioned RTS. Survival=edit-conditioned diversity canary selection + OOD selector. H2 (selection>random) is a HARD KILL GATE."
 common:
-  infrastructure_state: NOT_STARTED
+  infrastructure_state: CORE_READY
   budget_state: UNCONFIGURED
-  integrity_alerts: []
+  integrity_alerts:
+    - "All 5 anchor sources verified real (AHE, Mr.DRE, TSCG, Refute-or-Promote, Code-as-Harness)."
+    - "All 4 top collision papers verified real (PIPE 2602.01611, EditPropBench 2605.02083, AgentAssay 2603.02601, cc02 KDD'26)."
+    - "No fatal collision found; all four NARROWED, none KILLED."
 human_decisions_required:
-  - "Configure provider credentials and hard budget ceilings without committing secrets."
+  - "Configure provider credentials and hard budget ceilings (program/budget.yaml + program/pricing.yaml) without committing secrets — required before any paid pilot."
+  - "Approve narrowed central claims and venue targets before any external action."

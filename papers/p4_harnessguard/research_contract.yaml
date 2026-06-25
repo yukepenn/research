@@ -1,27 +1,71 @@
-paper_id: null
-working_title: null
-state: IDEA
-central_claim: null
-falsifiable_hypotheses: []
-unit_of_analysis: null
-intervention: null
-primary_endpoint: null
-practical_effect_threshold: null
-strongest_baselines: []
-nearest_neighbors: []
-exact_novelty_delta: null
-pilot_design: null
-pilot_pass_rule: null
-kill_conditions: []
-full_study_design: null
-held_out_generalization: []
-main_figure: null
-main_table: null
-judge_independence: null
-statistics: null
-ethical_risks: []
-resource_budget: null
-target_venue: null
-sequential_backup_venue: null
-human_owner: null
-last_updated: null
+paper_id: p4_harnessguard
+working_title: "HarnessGuard: Edit-Conditioned Canary Selection for Hidden-Regression Foresight in Evolving Agent Harnesses"
+state: NOVELTY_PASS_NARROWED
+# NARROWED 2026-06-25: AgentAssay (2603.02601) already does token-efficient agent regression
+# testing with 3-valued PASS/FAIL/INCONCLUSIVE + SPRT (owns "cheap testing" + "abstention").
+# TDAD (2603.17973) / Risk-Aware Batch Testing (2604.00222) own edit/diff-conditioned test
+# SELECTION before a full run. Survival = edit-CONDITIONED, diversity-aware canary SELECTION
+# on the per-task pass->fail regression-DELTA label, predicting the regression set BEFORE the
+# suite, with held-out OOD generalization across edit/task/model families. H2 is a hard gate.
+central_claim: >
+  An edit-conditioned, diversity-aware canary SELECTOR — using a structured representation of
+  a harness edit + historical task traces to predict per-task pass->fail regression before the
+  full suite — achieves higher hidden-regression recall at fixed canary budget than random,
+  difficulty, and static-diff selection, AND its risk model generalizes to HELD-OUT edit
+  types, task families, and model families. This SELECTION lever stacks on top of
+  AgentAssay-style trials-per-test reduction (combined beats either alone).
+falsifiable_hypotheses:
+  - "H1 (setup, credited): a non-trivial fraction of average-improving edits cause task-level pass->fail regressions (phenomenon already shown by Self-Harness/Layer-Isolated)."
+  - "H2 (HARD GATE / PRIMARY): edit-conditioned selection beats RANDOM canaries at the SAME budget; concede the effect-size/budget regime where random ties (per 2409.03563, 2510.08730). If random ties everywhere, auto-convert to negative result."
+  - "H3: a structured edit representation beats edit-agnostic selection (historical-failure prior, diversity-only, IRT/anchor subset)."
+  - "H4 (calibration): abstain/escalate is at least as risk-controlled as AgentAssay INCONCLUSIVE+SPRT, at lower task budget."
+  - "H5: risk structure transfers to held-out edit type / task family / model family."
+unit_of_analysis: harness edit (clustered by lineage); tasks nested within
+intervention: edit-conditioned canary selector + sequential ACCEPT/REJECT/ESCALATE policy
+primary_endpoint: "Regression recall at fixed canary budget on HELD-OUT edits + dangerous false-acceptance rate (risk-coverage curve, edit-group bootstrap)."
+practical_effect_threshold: "Selector beats random at matched budget by a pre-set recall margin on >=2 held-out splits; set after pilot."
+strongest_baselines:
+  - random k canaries
+  - fixed smoke suite
+  - historical-difficulty selection
+  - capability/coverage stratified selection
+  - edit-text/task embedding similarity
+  - static diff-size heuristic
+  - AgentAssay-style SPRT + trace-reuse + INCONCLUSIVE (primary must-beat / stack-with, 2603.02601)
+  - TDAD static impact selection (2603.17973) / Risk-Aware Batch ML edit-risk (2604.00222)
+  - run-full-suite (upper baseline) / edit-author self-prediction / oracle selector upper bound
+exact_novelty_delta: >
+  Not cheap agent testing (AgentAssay), not abstention (AgentAssay/SPRT), not diff-conditioned
+  RTS (TDAD/Risk-Aware-Batch): the contribution is edit-CONDITIONED + diversity-aware canary
+  SELECTION on the stochastic per-task regression-DELTA label, predicting the regression set
+  PRE-suite, modeling model x harness interaction, with held-out OOD generalization of the
+  SELECTOR itself — none of the neighbors do the OOD selector study, and the SELECTION lever
+  is orthogonal to AgentAssay's trials-per-test lever.
+nearest_neighbors:
+  - {id: AgentAssay, arxiv: "2603.02601", note: "first token-efficient agent regression testing + 3-valued + SPRT; reduces trials/test, does NOT select tasks or condition on edit, no OOD selector", collision: high}
+  - {id: TDAD, arxiv: "2603.17973", note: "pre-change impact-analysis test selection for coding agents (deterministic unit tests)", collision: high}
+  - {id: RiskAwareBatch, arxiv: "2604.00222", note: "ML commit-risk-scored budgeted test selection (software)", collision: medium}
+  - {id: AHE, arxiv: "2604.25850", note: "automatic harness evolution (anchor; the thing we guard, not the guard)", collision: medium}
+  - {id: SelfHarness, arxiv: "2606.09498", note: "self-evolving harness w/ regression gate; agent self-prediction ~random", collision: medium}
+  - {id: HundredInstances, arxiv: "2409.03563", note: "selection NOT better than random for fine-grained deltas (H2 counter-evidence)", collision: high}
+exact_kill_condition: "H2 fails (random ties edit-conditioned selection at fixed budget across regimes) -> auto-convert to short negative-result note."
+pilot_design: "12-16 independent edits x 30 tasks x 2 model families, old/new paired, 2 repeats; baselines random / difficulty / component-heuristic / edit-conditioned selector; AgentAssay-style sequential baseline."
+pilot_pass_rule: ">=25-30% edits produce a meaningful pass->fail regression; random small suite misses real regressions; edit-conditioned features carry transferable signal; full suite expensive enough that canaries matter; >=30 independent edits collectable."
+kill_conditions:
+  - "H2 fails: random ties selection at fixed budget -> negative-result note."
+  - "Edits rarely produce hidden regressions / regressions are pure noise -> KILL."
+  - "Need near-full suite to detect -> KILL."
+  - "Held-out selector ~random -> drop method, descriptive corpus only."
+  - "Edit corpus too small or too correlated (<~25 independent) -> flagship not viable."
+full_study_design: "36-60 independent edits (>=10 real, >=10 controlled, >=10 optimizer-generated); 60-120 tasks; 2-3 models; leave-one-component-out + leave-one-lineage-out + held-out model/task; AgentAssay stacking study."
+held_out_generalization: ["leave-one-edit-component-out", "leave-one-lineage-out", "held-out model family", "held-out task family"]
+main_figure: "Risk-coverage / regression-recall-vs-budget curve: random vs smoke vs difficulty vs HarnessGuard, edit-bootstrap CI."
+main_table: "Per-component regression rates + recall@budget + false-safe + cost saved; AgentAssay-stacking row."
+judge_independence: "Regression labels from deterministic task verifiers (paired old/new); no LLM judge in primary path."
+statistics: "bootstrap over EDITS (not task runs); paired-edit same-k selector comparison; sequential policy on fully held-out edits; Wilson/Clopper-Pearson for false-safe; real/controlled/optimizer reported separately."
+ethical_risks: ["use only authorized/sandboxed harnesses; docker absent -> local disposable subprocess sandboxing (documented limitation)"]
+resource_budget: "Tier-0 edit corpus + paired runner + features first; full old/new ground truth requires credentials + budget (HUMAN GATE)."
+target_venue: "MLSys 2027 / ICLR 2027 (flagship if H2 + OOD selector strong); TMLR otherwise."
+sequential_backup_venue: TMLR
+human_owner: "yuke.z@wustl.edu"
+last_updated: "2026-06-25"

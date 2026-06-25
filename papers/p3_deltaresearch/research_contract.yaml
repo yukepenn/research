@@ -1,27 +1,66 @@
-paper_id: null
-working_title: null
-state: IDEA
-central_claim: null
-falsifiable_hypotheses: []
-unit_of_analysis: null
-intervention: null
-primary_endpoint: null
-practical_effect_threshold: null
-strongest_baselines: []
-nearest_neighbors: []
-exact_novelty_delta: null
-pilot_design: null
-pilot_pass_rule: null
-kill_conditions: []
-full_study_design: null
-held_out_generalization: []
-main_figure: null
-main_table: null
-judge_independence: null
-statistics: null
-ethical_risks: []
-resource_budget: null
-target_venue: null
-sequential_backup_venue: null
-human_owner: null
-last_updated: null
+paper_id: p3_deltaresearch
+working_title: "DeltaResearch: Typed Dependency-Graph Patching of Reports under Evidence-World Updates"
+state: NOVELTY_PASS_NARROWED
+# NARROWED 2026-06-25: EditPropBench (2605.02083) owns the change/preserve dual metric and
+# "~30% obligated updates missed"; Mr.DRE (2601.13217) owns "DR agents regress 16-27% on
+# revision"; FRUIT owns "update a doc to reflect new evidence". Survival = the METHOD
+# (typed dependency-graph patch+audit) winning over flat ledger + full regen on an
+# evidence-WORLD delta (not author edit), validated on real versioned evidence.
+central_claim: >
+  Modeling a report as a TYPED claim-evidence dependency graph and emitting a constrained,
+  audited claim-level patch in response to an evidence-WORLD delta (numeric revision,
+  retraction, source conflict, temporal-validity change, upstream recompute) beats a flat
+  claim-citation ledger and full regeneration on the JOINT objective of affected-claim
+  recall AND unaffected-claim preservation, including derived/temporal/computed claims, and
+  transfers from controlled worlds to real versioned evidence.
+falsifiable_hypotheses:
+  - "H1 (setup, credited): full regeneration and naive 'revise this report' both produce stale residual OR unaffected drift (already shown by Mr.DRE/EditPropBench)."
+  - "H_DIVERGE (gating): agent behavior on an evidence-WORLD delta differs from an equivalent author-style manuscript edit; if not, the evidence-world framing is cosmetic -> do not proceed."
+  - "H3 (PRIMARY): typed dependency edges add affected-claim recall AND derived/temporal/computed-claim correctness beyond a flat claim-citation ledger (AAR-style)."
+  - "H4: constrained patch reduces unaffected-claim drift at equal-or-better affected recall with lower token/latency than full regeneration."
+  - "H5: gains transfer to real versioned evidence (held-out source/update family)."
+unit_of_analysis: evidence world (clustered); claims nested within report
+intervention: typed dependency-graph impact analysis + constrained claim-level patcher
+primary_endpoint: "Pre-registered combined score over Affected-Claim Recall (ACR) and Unaffected-Claim Preservation (UCP), reported jointly (not a maskable average)."
+practical_effect_threshold: "Typed graph improves ACR or UCP with the other not materially worse, by a pre-set margin set after pilot; must hold on real subset."
+strongest_baselines:
+  - full regeneration from scratch
+  - naive 'update the report per new evidence' prompt
+  - local diff prompt, no claim ledger
+  - flat claim-citation ledger (AAR-style, no typed edges)
+  - citation-checker-then-revise
+  - ChainEdit-style graph-guided propagation transplant
+  - Oracle impact-set upper bound (not a contribution)
+exact_novelty_delta: >
+  Not the dual metric (EditPropBench), not the phenomenon (Mr.DRE), not the task (FRUIT):
+  the contribution is the evidence-WORLD delta taxonomy (retraction/conflict/temporal/
+  recompute) mapped to gold A/U/N/C claim sets, a typed-graph agentic patch+audit that
+  demonstrably beats a flat ledger AND full regen on derived/temporal/computed claims, and
+  controlled->real transfer. EditPropBench is synthetic-only manuscript edits; AAR is
+  generation-time; ChainEdit is KB facts not report prose.
+nearest_neighbors:
+  - {id: EditPropBench, arxiv: "2605.02083", note: "change/preserve dual metric + ~30% miss; synthetic manuscript edits, no evidence-world delta, no method", collision: high}
+  - {id: MrDRE, arxiv: "2601.13217", note: "DR agents regress 16-27% on revision (phenomenon); anchor", collision: high}
+  - {id: FRUIT, note: "update doc to reflect new evidence (base task, 2022)", collision: medium}
+  - {id: AAR, note: "claim-evidence/provenance graph + audit at generation time", collision: medium}
+  - {id: ChainEdit, note: "graph/rule-guided propagation of KB updates to dependent facts", collision: medium}
+  - {id: RAMDocs, note: "conflicting-evidence honesty as QA", collision: low}
+pilot_design: "30 controlled + 10 real worlds x 2 research-agent families x {full regen, naive revise, citation-aware, flat ledger, typed graph}; 1-3 delta types/world; gold graph deterministic."
+pilot_pass_rule: "Baselines show stale residual or drift; typed graph improves ACR or UCP without harming the other; real subset agrees in direction; H_DIVERGE holds; annotation agreement acceptable; primary not dependent on a single LLM judge."
+kill_conditions:
+  - "No behavioral divergence between evidence-world delta and equivalent author edit (H_DIVERGE fails) -> do not proceed (framing cosmetic)."
+  - "Typed graph does not beat flat ledger -> MERGE/downgrade to dataset note."
+  - "Synthetic gains do not transfer to real -> downgrade."
+  - "All primary scores depend on one LLM judge -> rebuild metric."
+full_study_design: "240 controlled + 60 real worlds; 3 domains (>=2 real); 3 agents; 5 methods; single + sequential updates (sequential secondary)."
+held_out_generalization: ["held-out domain", "held-out update type", "held-out source organization", "initial report from unseen model", "long reports / multi-hop derived claims"]
+main_figure: "ACR-UCP 2D Pareto with cost bubbles; methods on the frontier."
+main_table: "Per update-type: stale-residual, spurious-revision, derived/temporal/computed correctness, citation freshness, cost."
+judge_independence: "Controlled worlds use deterministic gold graph + string/numeric checks; LLM judge secondary with human agreement on real subset."
+statistics: "world-level paired bootstrap; mixed model (method*update_type*domain + initial_report_quality + (1|world)+(1|report)); Krippendorff alpha for human labels; controlled vs real reported separately."
+ethical_risks: ["use only redistributable / properly-licensed real sources; store URL+hash+snapshot, not full text; avoid medical/legal advice domains in first batch"]
+resource_budget: "Tier-0 deterministic world generator + evaluator first; agent runs require credentials + budget (HUMAN GATE)."
+target_venue: "ACL Rolling Review — October 2026 cycle (submission 2026-10-12); August 3 only if all evidence gates pass."
+sequential_backup_venue: "TMLR / ICLR"
+human_owner: "yuke.z@wustl.edu"
+last_updated: "2026-06-25"
