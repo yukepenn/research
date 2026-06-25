@@ -1,0 +1,1 @@
+{"events":[{"at":"2026-06-25T18:23:04Z","payload":{"latency_seconds":11.103124,"text":"done","tool_calls":[]},"step":0,"type":"model_call"},{"at":"2026-06-25T18:23:04Z","payload":{"text":"done"},"step":0,"type":"final"}]}
