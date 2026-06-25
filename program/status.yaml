@@ -2,7 +2,7 @@ program_date: "2026-06-25"
 portfolio:
   p1_toolmorph:
     state: PILOT_RUNNING
-    confidence: 0.50
+    confidence: 0.40
     active_issues: [P1-PILOT-INTERACTIVE-done, P1-SCALE, P1-STNF-RECOVERY, P1-RANKING]
     blockers: []
     next_gate: PILOT_PASS
@@ -10,7 +10,7 @@ portfolio:
     novelty_note: "PIPE(2602.01611) occupies EQ+META; re-architected around label-free STNF transfer to UNSEEN transforms. KILL if content-control erases effect AND STNF cannot beat description-rewrite."
   p2_crosscheck:
     state: PILOT_RUNNING
-    confidence: 0.35
+    confidence: 0.30
     active_issues: [P2-PILOT-done-inconclusive, P2-HARDER-CORPUS, P2-DRAFT]
     blockers: ["empirical differentiation needs a mid-difficulty fairly-specified defect corpus (no_review ~0.4-0.6)"]
     next_gate: PILOT_PASS
@@ -18,7 +18,7 @@ portfolio:
     novelty_note: "cc02(KDD'26) owns bidirectional 2x2. Survival=conjunction: budget-matched author-extra-compute arm + defect-type complementarity + pre-call held-out router."
   p3_deltaresearch:
     state: PILOT_RUNNING
-    confidence: 0.62
+    confidence: 0.55
     active_issues: [P3-PILOT-done-strong, P3-ERROR-DECOMP, P3-REAL-LAYER, P3-HDIVERGE-quantify, P3-DRAFT-done]
     blockers: ["real versioned-evidence layer + human adjudication are gated next steps"]
     next_gate: PILOT_PASS
@@ -35,7 +35,8 @@ portfolio:
 common:
   infrastructure_state: TIER0_COMPLETE   # kernel+infra+all 4 papers' deterministic components built & tested
   tests_passing: 97
-  active_scope: "ALL FOUR papers (P4 re-activated 2026-06-25 per user)."
+  active_scope: "THREE papers: P1, P2, P3 (P4 KILLED 2026-06-25, evidence-driven)."
+  redteam_outcome: "3-reviewer adversarial red-team: P1 reject(3/10), P2 reject(3/10), P3 major_revision(4/10); all novelty-intact, citation-integrity OK. Real integrity errors caught (P1 numbers, P3 tautological method, P2 budget-arm overclaim) and corrected. Honest tier: pilot/workshop-grade, not full-study submittable. Strongest finding: P3 'agents miss ~2/3 of evidence-delta updates; hints don't help'."
   evidence_mode: "Subscription CLI (Claude + Codex/gpt-5.5), plan-then-execute / plan-then-patch / plan-then-repair. ZERO metered API cost. Pilot-scale, Level-A-ish unified-harness (we control execution). Full Level-A multi-family study + submission remain human gates."
   github: "https://github.com/yukepenn/research (private), auto-pushed each commit."
   budget_state: NO_PAID_API   # user directive: no extra API spend; use existing Claude/Codex subscriptions
