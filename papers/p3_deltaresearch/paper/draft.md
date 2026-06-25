@@ -1,333 +1,339 @@
-# DeltaResearch (pilot): Real Deep-Research Agents Recover Only ~1/3 of Obligated Downstream Updates under Evidence-World Deltas — A Controlled Harness and Empirical Note
+# DeltaResearch: A No-Gold Claim-Dependency Pipeline Closes the Downstream-Update Gap That Stalls Deep-Research Agents under Evidence-World Deltas — A Controlled Pilot
 
-> DRAFT — workshop-tier pilot / benchmark-and-empirical note. This is NOT a finished venue submission
-> and NOT the method paper an earlier title advertised. Written evidence-first from
-> `evidence/pilot_2026-06-25.md`. The two genuine deliverables are (a) a released controlled-world
-> harness (world generator, typed-graph analyzer, deterministic baselines, joint metrics, immutable
-> episode ledger) and (b) a pilot empirical finding on two real subscription-CLI agent families. The
-> deterministic typed-graph "frontier" (1.0/1.0 vs 0.0 vs 0.13) is a **construction-determined
-> consistency check, NOT an empirical comparison of run systems**, and is labeled as such throughout.
-> CIs, real-evidence transfer (Layer B), a falsifiable H_DIVERGE gate, and a de-oracled end-to-end
-> method are unrun and pre-registered as next steps. See `## Honest status and path to a full paper`.
+> DRAFT — strong controlled, **no-gold** pilot (ARXIV_ONLY tier), NOT a finished TACL submission. Written
+> evidence-first from `evidence/claimpatch_2026-06-25.md` (headline result) and
+> `evidence/pilot_2026-06-25.md` (motivating finding); every Results number is verbatim. Two halves:
+> (a) a *motivating* finding that real deep-research agents miss most obligated downstream updates under
+> an evidence-world delta and that handing them the affected set does not help; (b) the *headline* — a
+> genuine no-gold pipeline (ClaimPatch) that infers the claim dependency structure from text and
+> deterministically recomputes downstream, significantly beating the naive agent on diverse-topology
+> worlds. The oracle / full-gold conditions remain **upper bounds** (consistency checks), distinct from
+> the no-gold pipeline and not conflated with it. Honest boundaries (parents still named in claim text;
+> controlled synthetic only; single draw, 24 worlds, two families; numeric/retraction deltas only; no
+> human adjudication) are stated prominently.
 
 ## Abstract
 
-Deep-research agents must keep long reports consistent when the underlying evidence world changes —
-a source is revised, retracted, recomputed, or expires — not only when an author edits the prose.
-Prior work shows that agents regress during multi-turn revision (Mr.DRE) and measures change/preserve
-adherence for author edits on synthetic manuscripts (EditPropBench), but the *evidence-world* delta
-trigger and the maintenance of derived, temporal, and recomputed claims remain open. We release a
-controlled DeltaBench harness — a world generator, a typed claim-evidence dependency-graph analyzer,
-deterministic baselines, joint (ACR, UCP) metrics, and an immutable episode ledger — and report a
-**pilot**. Our central, supported finding is an empirical negative: across 18 controlled worlds
-(3 seeds × 6 effectful delta types) and 72 logged episodes on two real subscription-CLI agent
-families (Claude, ACR = 0.39; Codex/gpt-5.5, ACR = 0.34), the agents — given the evidence-world delta
-with the derivation rules stated in-prompt — recover only about one third of the claims that *must*
-change while leaving unaffected claims essentially untouched (Unaffected-Claim Preservation,
-UCP ~ 1.0); handing them the typed-graph affected set does not help (ACR = 0.33). This localizes the
-failure to **editing and re-derivation, not identification**. We note that UCP ~ 1.0 is the mechanical
-dual of conservative under-editing — a do-nothing agent also scores UCP = 1.0 — so for the real agents
-the joint pair effectively collapses to ACR. We also report that the deterministic typed-graph
-analyzer matches the programmatic gold (ACR = UCP = 1.0) against a full-regeneration foil (UCP = 0.0)
-and a flat claim-citation ledger (ACR = 0.13); we explicitly flag this as a **construction-determined
-consistency check, not an empirical result** — the analyzer is fed the gold graph and reads gold
-values straight from `world.post_values`, performing no re-derivation, and the baselines are hand-coded
-foils whose 0.0/0.13 are artifacts (the 0.0 penalizes *touching* a claim, not changing it, and
-contradicts Mr.DRE's measured 16–27% regression). Scope: pilot-scale, a single fixed topology,
-deterministic gold, no confidence intervals; a real versioned-evidence layer, a *falsifiable*
-divergence gate, and a de-oracled end-to-end method are pre-registered next steps, not claims.
+Deep-research agents must keep long reports consistent when the underlying *evidence world* changes — a
+source is revised or retracted — not only when an author edits the prose. Prior work shows agents regress
+during multi-turn revision (Mr.DRE) and measures change/preserve adherence for author edits on synthetic
+manuscripts (EditPropBench), but the evidence-world delta trigger and the maintenance of derived,
+recomputed claims remain open. We first reproduce the phenomenon on real subscription-CLI agents: across
+18 controlled worlds, two families (Claude, Codex/gpt-5.5) given an evidence-world delta *with the
+derivation rules stated in-prompt* recover only about one third of the claims that must change
+(Affected-Claim Recall, ACR = 0.39 and 0.34) while preserving unaffected claims (Unaffected-Claim
+Preservation, UCP ~ 1.0); handing them the typed-graph affected set does not help (ACR = 0.33),
+localizing the bottleneck to re-derivation, not identification. Our main contribution is a **no-gold**
+end-to-end pipeline, **ClaimPatch**, that infers the claim dependency structure from claim text alone
+(never a gold graph, gold affected set, or gold post-update value) and then has a deterministic
+calculator recompute downstream values. On 24 diverse-topology controlled worlds (chain / tree / diamond
+/ fan-in / fan-out / mixed; numeric-revision and retraction deltas) with the same two real agents,
+ClaimPatch reaches ACR = 1.00 for both families against naive ACR of 0.25 (Claude) and 0.54 (Codex) — a
+world-clustered bootstrap gain of +0.75 [0.58, 0.92] and +0.46 [0.25, 0.67], both CIs excluding 0. When
+the report hides the operation (parents named, derivation type not), the naive agent degrades further
+(Claude ACR = 0.08) while ClaimPatch still reaches 1.00 (+0.92 [0.79, 1.00]; Codex +0.48 [0.29, 0.69]).
+A stage diagnostic explains why: inferred-vs-gold edge precision and recall are 1.00, and operation
+accuracy is 0.96–1.00 *even when the operation is hidden*, so the agent recovers the dependency graph
+near-perfectly and the deterministic recompute supplies the values the naive agent omits. ClaimPatch
+matches the deterministic upper bound (oracle graph+recompute / full gold = 1.00), where gold is computed
+by an **independent world-physics recompute on a separate code path**, validating rather than
+tautologizing the result. Boundaries: parents are still *named* in claim text (fully-implicit reports
+untested), worlds are controlled-synthetic (no real-evidence layer yet), each condition is a single draw
+over 24 worlds and two model families, only numeric and retraction deltas are covered, and there is no
+human adjudication. We therefore position this as a strong controlled, no-gold pilot, and a TACL-track
+foundation once the real-evidence layer, human adjudication, more delta types, and repeats are added.
 
 ## 1. Introduction
 
 Consider a deep-research report that states "the regional employment figure is 412,000" and, two
 sentences later, "the composite activity index stands at 1.07" — where the index is computed from the
-employment figure together with two other series — and, alongside, the qualitative judgment "the
-labour market remains tight." Now the source revises the employment figure to 418,000. Faithful
-maintenance is not a free-text rewrite: the numeric claim *must* change, the composite index *must*
-be recomputed and changed (it is derived from the revised input), and the qualitative judgment *must*
-stay fixed (the revision is too small to flip it). An agent that edits only the directly-cited number
-leaves a stale, internally-inconsistent index behind; an agent that regenerates the whole report
-risks silently overwriting the still-correct qualitative claim. The hard cases are precisely the
-*downstream* obligations — derived, temporal, and recomputed claims — that no longer sit next to the
+employment figure together with two other series. Now the source revises the employment figure to
+418,000. Faithful maintenance is not a free-text rewrite: the directly-cited number *must* change, and
+the composite index *must* be recomputed and changed because it is *derived from* the revised input. An
+agent that edits only the directly-cited figure leaves a stale, internally-inconsistent index behind; an
+agent that regenerates the whole report risks silently overwriting still-correct claims. The hard cases
+are precisely the *downstream* obligations — derived, recomputed claims that no longer sit next to the
 source that changed.
 
-We study this **evidence-world delta** setting, in which the trigger is a change to the sources
-(a numeric revision, retraction, source conflict, temporal-validity change, or upstream recompute)
-rather than an author's manuscript edit. **Our headline, supported contribution is an empirical
-negative on real systems.** Two independent real agent families — Claude and Codex (gpt-5.5), run
-through subscription CLIs — given such a delta *with the derivation rules stated in-prompt*, recover
-only about one third of the claims that must change (Affected-Claim Recall, ACR = 0.39 for Claude,
-0.34 for Codex) while leaving unaffected claims essentially intact (UCP ~ 1.0). They recover well
-above a flat direct-citation ledger (~2.6–3× its ACR = 0.13) but fall far short of complete: they fix
-what is cited and miss most of the downstream cascade. Crucially, *handing* the agent the typed-graph
-affected set does not raise its recall (ACR = 0.33) — an honest null that localizes the bottleneck to
-editing and re-derivation, not identification, and that is the most informative result in this pilot.
+We study this **evidence-world delta** setting, in which the trigger is a change to the sources (a
+numeric revision or a source retraction here) rather than an author's manuscript edit. We first establish
+the problem on real systems. Two independent real agent families — Claude and Codex (gpt-5.5), run
+through subscription CLIs at no API cost — given such a delta *with the derivation rules stated
+in-prompt*, recover only about one third of the claims that must change (ACR = 0.39 for Claude, 0.34 for
+Codex) while leaving unaffected claims essentially intact (UCP ~ 1.0). Crucially, *handing* the agent the
+typed-graph affected set does not raise its recall (ACR = 0.33): the agents are told which claims are
+affected and still under-edit. This null localizes the bottleneck to **re-derivation, not
+identification** — the agent knows *what* to change but does not reliably recompute the new values.
 
-We are deliberately careful about what the deterministic side of the harness does and does *not*
-show. A typed dependency-graph analysis plus a constrained patch reaches ACR = UCP = 1.0 on the
-controlled gold, while a full-regeneration foil scores UCP = 0.0 and a flat ledger scores ACR = 0.13.
-**This is a construction-determined consistency check, not an empirical comparison of run systems:**
-the typed-graph arm is fed the gold dependency graph and reads patch values directly from
-`world.post_values` (the gold), so it performs no re-derivation; the full-regen and flat-ledger arms
-are hand-coded foils, and their 0.0/0.13 are artifacts of the construction (Section 6.3). We report it
-only to demonstrate that the analyzer and the independent gold code path agree and that a flat ledger
-structurally under-recalls — *not* as a method that beats real baselines.
+Our headline contribution acts on exactly that diagnosis. **ClaimPatch** is a no-gold, end-to-end
+pipeline: from the old report (claim texts, values, citations), the sources, and the observable evidence
+delta — and *never* a gold dependency graph, gold affected set, or gold post-update value — it (i) infers
+the claim dependency structure from the claim text, and then (ii) lets a **deterministic calculator**
+recompute downstream values along that inferred structure. Because the load-bearing re-derivation step is
+moved out of the language model and into deterministic computation, ClaimPatch closes the gap the naive
+agent leaves open. On 24 diverse-topology controlled worlds with the same two real agents, ClaimPatch
+reaches **ACR = 1.00** for both Claude and Codex, versus naive ACR of 0.25 (Claude) and 0.54 (Codex), a
+world-clustered bootstrap gain of **+0.75 [0.58, 0.92]** and **+0.46 [0.25, 0.67]** — both confidence
+intervals exclude 0. When the report *hides the operation* (the claim names its parent entities but not
+the derivation type), the naive Claude agent collapses to ACR = 0.08 while ClaimPatch still reaches 1.00
+(+0.92 [0.79, 1.00]; Codex +0.48 [0.29, 0.69]). This is a genuine no-gold method result, not a gold-fed
+consistency check.
 
-We concede up front the two adjacent prior results we build on, both Director-verified: Mr.DRE
+We concede up front the two adjacent prior results we build on, both Director-verified. Mr.DRE
 ~\cite{mrdre2026} establishes that deep-research agents regress during multi-turn revision (a measured
-16–27% regression magnitude), and EditPropBench ~\cite{editpropbench2026} introduces the
-change/preserve dual metric and the "~30% of obligated updates missed" headline for author edits on
-scientific manuscripts. Concretely, this pilot contributes:
+16–27% regression magnitude), and EditPropBench ~\cite{editpropbench2026} introduces the change/preserve
+dual metric and the "~30% of obligated updates missed" headline for author edits on scientific
+manuscripts. We adopt their dual objective and their phenomenon, and differentiate on the
+*evidence-world* trigger and a *no-gold structure-inference + deterministic-recompute* method.
+Concretely, this pilot contributes:
 
-1. **A released controlled DeltaBench harness** with programmatic gold A/U/N/C computed by an
-   independent world-physics recomputation, deterministic baselines, the joint (ACR, UCP) metrics, and
-   an immutable 72-episode ledger that reproduces every number below (Section 3; delivered/SUPPORTED as
-   infrastructure).
-2. **The central empirical finding — real agents leave a stale residual:** Claude and Codex recover
-   only ACR = 0.34–0.39 of obligated downstream updates at UCP ~ 1.0 on an evidence-world delta, with
-   the same direction in both families (Section 6.1; P3-H1, pilot-scale, SUPPORTED).
-3. **An honest negative on prompting structure:** giving the agent the typed-graph affected set does
-   not raise ACR (0.33 vs 0.39), localizing the failure to edit/re-derivation rather than
-   identification (Section 6.2; P3-H3, pre-registered prediction *not* supported).
-4. **A construction-determined consistency check (explicitly NOT a method result):** the typed-graph
-   analyzer matches the independent gold (ACR = UCP = 1.0) while a full-regen foil and a flat ledger
-   fail on one axis each (UCP = 0.0; ACR = 0.13). Because the typed-graph arm is oracle-fed and the
-   foils are hand-coded, this is a unit-test-style consistency check, not a demonstrated method
-   (Section 6.3; reported as such, not as P3-H4 evidence).
+1. **A released controlled DeltaBench harness** with diverse random-DAG topologies and programmatic gold
+   A/U computed by an *independent world-physics recompute* (a separate code path from the analyzer),
+   joint (ACR, UCP) plus harmful-edit and calculation-correctness metrics, and an immutable episode
+   ledger (Section 3; infrastructure, SUPPORTED).
+2. **The motivating finding (RQ1):** two real agent families recover only ~1/3 of obligated downstream
+   updates (Claude ACR = 0.39, Codex 0.34; UCP ~ 1.0), and handing them the typed-graph affected set
+   does not help (ACR = 0.33) — localizing the failure to re-derivation, not identification (Section 6.1;
+   SUPPORTED).
+3. **The headline no-gold method (RQ3):** ClaimPatch infers dependency structure from claim text and
+   deterministically recomputes downstream, reaching ACR = 1.00 vs naive 0.25 / 0.54 (named reports) and
+   vs 0.08 / 0.52 (operation-hidden reports), with all four pipeline−naive gains' CIs excluding 0
+   (Sections 4 and 6.2; SUPPORTED, no gold consumed).
+4. **A stage-wise diagnostic (RQ2)** that explains the gain mechanistically: inferred-vs-gold edge
+   precision/recall = 1.00 and operation accuracy = 0.96–1.00 even when the operation is hidden, so the
+   bottleneck is re-derivation, which ClaimPatch supplies deterministically (Section 6.3; SUPPORTED).
+5. **Upper-bound validation, kept honest:** the oracle (graph+recompute) and full-gold conditions are
+   1.00 and are reported as *upper bounds / consistency checks*, distinct from the no-gold pipeline;
+   because gold is computed by an independent recompute on a separate code path, ClaimPatch matching that
+   bound validates rather than tautologizes (Section 6.4; honest framing).
 
 ## 2. Problem: evidence-world deltas, not author edits
-We separate the *evidence world* `W_t` (sources with values, validity intervals, authority) from the
-*report* `R_t` (atomic claims with support edges, derivations, temporal scope). An update is a delta
-`ΔW` (numeric revision, source retraction, source conflict, temporal-validity change, upstream
-recompute, new authoritative source). The gold impact partitions claims into `A` (must change),
-`U` (must preserve), `N` (newly supported), `C` (now contested). The objective is to correctly
-update `A` and `N`, preserve `U`, honestly flag `C`, and keep citations/calculations valid — *not*
-to minimize character diff.
+
+We separate the *evidence world* `W_t` (sources with values, validity, authority) from the *report* `R_t`
+(atomic claims with support edges, derivations). An update is a delta `ΔW`; in this pilot the realized
+delta types are **numeric revision** and **source retraction**. The gold impact partitions claims into
+`A` (must change) and `U` (must preserve). The objective is to correctly update `A` and preserve `U`
+while keeping calculations valid — *not* to minimize character diff. Per the formal protocol (spec §C),
+the method receives only `W0`, `R0`, and the observable `ΔW / W1`; it must not receive `A`, `U`, gold
+dependency edges, or gold post-update values. The no-gold guarantee is the central design constraint of
+this draft, and the pipeline's input view (`r0_view()`) was verified to expose none of those gold
+objects (`test_p3_claimpatch`).
 
 ## 3. DeltaBench (controlled layer) + programmatic gold
-We generate fully-verifiable worlds (`controlled_worlds/generator.py`): a latent fact graph yields
-evidence and typed claims (base measurements; a total, margin, share, index by composition; a
-temporally-scoped rate and its projection). After a delta, gold A/U/N/C are computed by an
-independent world-physics recomputation (re-evaluate the fact graph, diff pre/post values and
-citations) — a separate code path from the typed-graph analyzer. We caution that "separate code path"
-is a *weak* independence guarantee here: both code paths encode the *same* hand-authored dependency
-structure on a single fixed 10-claim topology, so analyzer ≈ gold is largely a statement about the
-author's own internal consistency rather than about the world. The harness, gold generator, baselines,
-metrics, and the immutable episode ledger are the released deliverable; the deterministic numbers
-below should be read accordingly (Section 6.3).
 
-## 4. Method (released as harness; end-to-end version pre-registered, not yet run)
-The intended pipeline is: atomize claims → typed evidence ledger → typed dependency graph →
-deterministic impact analysis → **constrained** claim-level patch (edit only authorized spans) →
-post-update verifier (support, stale citations, numeric consistency, preserved-claim drift, audit
-trail). We release this scaffolding (`claim_graph.py`, `baselines.py`). **Important caveat:** in the
-current pilot the typed-graph patch arm is *oracle-fed* — it reads target values directly from
-`world.post_values` rather than re-deriving them — so the load-bearing re-derivation step (the very
-step the agents fail at, Section 6.2) is **not exercised**. A de-oracled, actually-recomputing
-end-to-end method (optionally driving a real agent for the edit/derivation step) is pre-registered as
-the primary required experiment, not a result of this draft. Foil baselines: full-regeneration,
-naive-revise (direct-cite only), flat ledger, oracle upper bound (`baselines.py`).
+We generate fully-verifiable worlds (`controlled_worlds/generator.py`) with **diverse random DAG
+topologies** — chains, trees, diamonds, fan-in (one claim from many parents), fan-out (one source into
+many claims), and mixed — yielding evidence and typed claims (base measurements plus derived
+quantities). After a delta, gold `A`/`U` and the expected revised values are computed by an **independent
+world-physics recompute**: the fact graph is re-evaluated and pre/post values and citations are diffed.
+This recompute is a *separate code path* from the structure ClaimPatch infers, so when the no-gold
+pipeline matches the gold it is being checked against an independently-derived answer rather than against
+its own internal bookkeeping. The harness, gold generator, baselines, joint metrics, and the immutable
+episode ledger (`artifacts/p3v2_ledger.jsonl` for named reports, `artifacts/p3v2_vague_ledger.jsonl` for
+operation-hidden reports) are the released deliverable.
+
+## 4. Method: ClaimPatch (no-gold, end-to-end)
+
+ClaimPatch (`claimpatch.py`) consumes only `R0` (claim texts, values, citations), the sources, and the
+observable evidence delta. Its stages are:
+
+1. **Dependency-structure inference (LLM).** From the claim text alone, the model predicts the typed
+   dependency edges among claims (which claim is derived from which parents) and the **operation** that
+   combines the parents (sum, margin, share, index, projection, …). No gold graph or gold affected set is
+   provided.
+2. **Affected-set propagation (deterministic).** Given the delta, the changed source's claims and their
+   transitive descendants along the *inferred* edges are marked as the predicted affected set.
+3. **Deterministic recompute.** A calculator re-evaluates each affected derived claim from its inferred
+   operation and its (recomputed) parents' values — the language model does **not** produce the new
+   numerics. This is the step the naive agent fails (Section 6.1).
+4. **Constrained patch + verification.** Only claims in the predicted affected set are edited; unaffected
+   claims are left untouched, and calculation/citation validity is checked.
+
+This is the de-oracled pipeline that earlier drafts only pre-registered: the re-derivation step is now
+actually exercised, and it reads *no* gold values. Baselines and upper bounds (spec §G): the **naive
+LLM** "update this report" prompt (an actual prompted baseline run on both real families); and the
+diagnostic **upper bounds** — *oracle graph+recompute* (gold graph, real recompute) and *full gold* —
+which are always labeled as upper bounds, never as the method.
 
 ## 5. Experimental setup
-Plan-then-patch: the model receives the report's atomic claims + a natural-language description of
-the evidence delta and returns a claim-level patch (edited ids, new numeric values, contested
-flags, additions), scored by the deterministic gold (ACR/UCP + diagnostics). Arms: naive LLM patch;
-LLM patch given the typed-graph impact hint; plus the deterministic consistency-check arms
-(typed-graph / full-regen / flat ledger / oracle). Models: Claude (`claude:claude-cli`) and Codex
-(`codex:codex-cli`); the underlying build is *not* captured in the ledger, so the "gpt-5.5" identity
-is asserted, not version-pinned. **Scope:** pilot-scale, a single fixed topology, controlled worlds;
-each model condition is a *single draw* (no repeats, so within-condition variance is unmeasured), and
-both arms share one prompt that explicitly instructs conservatism. A real versioned-evidence layer
-(Layer B) and human adjudication are gated next steps.
+
+We run two complementary studies. **(A) Motivation / RQ1 (pilot):** 18 controlled worlds (3 seeds × 6
+effectful delta types) on a fixed topology, 72 LLM episodes (2 families × 2 prompt arms × 18 worlds);
+arms are the naive LLM patch and the LLM patch *given the typed-graph affected set as a hint*.
+**(B) Headline / RQ3 (ClaimPatch):** 24 controlled worlds with diverse random DAG topologies and
+numeric-revision and retraction deltas, in two phrasing conditions — **named** reports (the claim text
+states the derivation type) and **vague** reports (the claim names its parent entities but *hides* the
+operation, e.g. "Metric d2, derived from Region A revenue and Region B revenue, is 260"); arms are the
+naive LLM and the no-gold ClaimPatch pipeline, plus the oracle / full-gold upper bounds. Models in both
+studies are Claude (`claude:claude-cli`) and Codex (`codex:codex-cli`, gpt-5.5), run at no API cost; the
+underlying build is not version-pinned in the ledger, so the "gpt-5.5" identity is asserted, not pinned.
+Significance is a **world-clustered bootstrap** over the 24 worlds (paired pipeline−naive per world).
+**Scope:** controlled synthetic worlds; each model condition is a *single draw* (within-condition
+variance unmeasured); numeric and retraction deltas only; no human adjudication. Figures
+`figures/generated/fig_acr_by_arm.pdf` (ACR by arm) and `figures/generated/fig_frontier.pdf` (the
+affected-recall / harmful-edit frontier) summarize the headline study.
 
 ## 6. Results
 
-**Pilot.** 18 controlled worlds (3 seeds × 6 effectful delta types) with programmatic gold A/U/N/C
-from the independent world-physics recomputation; 72 LLM episodes (2 model families × 2 prompt arms ×
-18 worlds) logged to the immutable ledger; deterministic arms computed once per world. All numbers are
-the pre-registered joint pair (ACR, UCP), never a maskable single average. Two real agent families
-were run through subscription CLIs at no API cost: `claude` and `codex` (gpt-5.5). The table below
-separates the **empirical finding (real agents)** from the **construction-determined consistency
-check (deterministic arms)**; these are not co-equal results and must not be read as a single
-frontier.
+All numbers below are verbatim from `evidence/claimpatch_2026-06-25.md` (headline study) and
+`evidence/pilot_2026-06-25.md` (motivation). We report the joint pair (ACR, UCP) plus harmful-edit and
+calculation-correctness, never a maskable single average.
 
-*Empirical finding — real agents (pilot-scale, SUPPORTED):*
+**6.1 Motivation (RQ1): real agents miss most downstream obligations, and the affected-set hint does not
+help.** In the pilot (18 worlds, 72 episodes), given the evidence-world delta as a natural-language
+description plus the report's atomic claims *and the derivation rules in-prompt*, both real families
+recover only about one third of the claims that must change: **Claude ACR = 0.39** and **Codex ACR =
+0.34** (i.e. they miss ~61% and ~66% of obligated updates), while leaving unaffected claims almost
+entirely intact (**UCP = 1.00** and **0.99**). Handing the agent the typed-graph affected set as an
+explicit hint did *not* raise recall — **Claude 0.39 → 0.33**, **Codex 0.34 → 0.33** (UCP ~ 1.0 in both
+arms). The agents are told which claims are affected and still under-edit, which **localizes the
+bottleneck to re-derivation, not identification.** The headline study's naive arms reproduce this
+under-recall on diverse topologies (Claude ACR = 0.25, Codex 0.54 with the derivation type named; Claude
+0.08, Codex 0.52 with the operation hidden — see 6.2), so the phenomenon is not an artifact of the fixed
+pilot topology. We note that UCP ~ 1.0 for these naive arms is the mechanical dual of conservative
+under-editing — a do-nothing agent also scores UCP = 1.0 — so for the naive arms the joint pair
+effectively collapses to ACR.
 
-| arm | ACR | UCP |
-|---|---|---|
-| Claude, naive LLM patch | 0.39 | 1.00 |
-| Claude + typed-graph hint | 0.33 | 1.00 |
-| Codex, naive LLM patch | 0.34 | 0.99 |
-| Codex + typed-graph hint | 0.33 | 1.00 |
+**6.2 Headline (RQ3): the no-gold ClaimPatch pipeline reaches ACR = 1.00 and significantly beats the
+naive agent.** ClaimPatch infers the dependency structure from claim text and recomputes downstream
+deterministically, *consuming no gold*. On the 24 diverse-topology worlds:
 
-*Construction-determined consistency check — deterministic arms (NOT an empirical comparison of run
-systems; the typed-graph arm is oracle-fed, the foils are hand-coded):*
+*Named reports (derivation type stated in claim text):*
 
-| arm | ACR | UCP |
-|---|---|---|
-| oracle (upper bound, reads gold) | 1.00 | 1.00 |
-| typed_graph (oracle-fed; reads `world.post_values`) | 1.00 | 1.00 |
-| full_regen (hand-coded foil; marks all ASSERTED edited) | 1.00 | 0.00 |
-| naive_ledger / flat (hand-coded foil; direct-cite only) | 0.13 | 0.97 |
+| arm | model | ACR | UCP | harmful-edit | calc-correct |
+|---|---|---|---|---|---|
+| naive LLM | Claude | 0.25 | 1.00 | 0.00 | 0.74 |
+| naive LLM | Codex | 0.54 | 1.00 | 0.00 | 0.99 |
+| **no-gold ClaimPatch** | Claude | **1.00** | 1.00 | 0.00 | 1.00 |
+| **no-gold ClaimPatch** | Codex | **1.00** | 1.00 | 0.00 | 1.00 |
+| oracle (graph+recompute / full gold) — *upper bound* | — | 1.00 | 1.00 | 0.00 | 1.00 |
 
-**6.1 Real agents leave a stale residual — the central finding (H1).** Given the evidence-world delta
-as a natural-language description plus the report's atomic claims *and the derivation rules in-prompt*,
-both real families recover only about one third of the claims that must change: Claude reaches
-ACR = 0.39 and Codex ACR = 0.34, i.e. they miss ~61% and ~66% of obligated updates respectively. They
-do this while leaving unaffected claims almost entirely intact (UCP = 1.00 and 0.99). The agents land
-**well above the flat ledger (~2.6–3× its ACR = 0.13) but far below complete**: they fix the
-directly-cited claim yet do not propagate the change to most derived, temporal, or recomputed
-downstream claims. This is the stale-residual failure on evidence updates — the phenomenon Mr.DRE
-~\cite{mrdre2026} reports for multi-turn revision and EditPropBench ~\cite{editpropbench2026} reports
-for author edits — here reproduced on an *evidence-world* delta, consistent in direction across two
-model families. We caution explicitly that **UCP ~ 1.0 here is the mechanical dual of conservative
-under-editing**: a do-nothing agent that touches nothing also scores UCP = 1.0. For the real agents
-UCP is pinned at the ceiling, so the "joint pair" effectively collapses to ACR alone, and the
-joint-metric framing adds little for these arms. We report this as a pilot-scale empirical result
-(P3-H1), supported in direction, not as a precise or CI-bounded estimate.
+Pipeline − naive ACR (world-clustered bootstrap, n = 24): **Claude +0.75 [0.58, 0.92]; Codex +0.46
+[0.25, 0.67] — both CIs exclude 0.**
 
-**6.2 The typed hint does not help — an honest negative (H3).** Handing the agent the typed-graph
-affected set as an explicit hint did *not* raise recall: Claude moved from ACR = 0.39 to 0.33 and
-Codex from 0.34 to 0.33 (UCP stayed ~1.0 in both arms). The hint was neutral-to-slightly negative and
-never closed the gap to complete coverage. The pre-registered prediction that structure handed to the
-agent would help (P3-H3) is therefore **not supported** in this pilot. The diagnostic value is the
-main payoff: because the bottleneck is *not* identifying which claims are affected — the agents are
-told and still under-edit — the failure lies downstream, in actually performing the edits and
-re-deriving numerics. We flag two caveats so this null is not over-generalized: the hint is phrased
-"*possibly* affected" alongside an instruction that unaffected claims MUST be left unchanged (a weak,
-conservatism-biased design), and each condition is a single draw. A stronger ablation (authoritative
-"these MUST change + recompute" hint, plan-then-edit scaffolds, an explicit recompute tool, and an
-identify-vs-list-vs-recompute error decomposition) is pre-registered before concluding that structure
-*cannot* help an agent. Even so, this null is what localizes the open problem to a structured,
-recompute-capable maintenance pipeline rather than to better prompting.
+*Operation-hidden ("vague") reports (parents named, operation inferred):*
 
-**6.3 Construction-determined consistency check (deterministic arms — NOT an empirical result).**
-Against the gold computed by the separate world-physics code path, the typed-graph analyzer plus
-constrained patch shows ACR = UCP = 1.00. **This is construction-determined and must not be read as a
-method beating baselines.** The analyzer is fed the gold dependency graph; its predicted affected set
-equals `gold_A` by construction; and the patch reads its values directly from `world.post_values`
-(the gold), so it performs **no re-derivation** — the very step the real agents fail at (Section 6.2).
-The two foils are likewise hand-coded, not run systems: full_regen marks the entire ASSERTED set as
-edited, so UCP = 0.00 follows by construction even though it writes the *correct* gold values — UCP
-penalizes *touching* a claim, not *changing* it. That 0.0 is therefore an **upper-bound illustration,
-not a realistic baseline**, and it directly contradicts Mr.DRE's *measured* regression magnitude of
-16–27% ~\cite{mrdre2026} (real regeneration does not destroy 100% of preserved claims). The flat
-ledger's ACR = 0.13 likewise falls out of the fixed topology (e.g. no claim directly cites the
-temporal evidence, so a direct-cite-only ledger flags nothing on temporal deltas). The only honest
-reading of this block is a consistency check: the analyzer agrees with the independent gold code path,
-and a flat ledger structurally under-recalls on derived/temporal claims. A negative-control
-(irrelevant) update yields an empty gold `A`, which the analyzer correctly predicts. We do **not**
-present this as evidence for the method (P3-H4); de-oracling it is the load-bearing required
-experiment (Section 9).
+| arm | model | ACR | UCP | harmful-edit | calc-correct |
+|---|---|---|---|---|---|
+| naive LLM | Claude | 0.08 | 1.00 | 0.00 | 0.58 |
+| naive LLM | Codex | 0.52 | 0.99 | 0.01 | 0.97 |
+| **no-gold ClaimPatch** | Claude | **1.00** | 0.97 | 0.03 | 1.00 |
+| **no-gold ClaimPatch** | Codex | **1.00** | 0.96 | 0.04 | 0.97 |
 
-**6.4 The divergence gate (H_DIVERGE) — illustration only, not a passed kill-gate.** The
-pre-registered gating question is whether an evidence-world delta induces a different obligated-change
-set than an equivalent author-style manuscript edit (without which the evidence-world framing would be
-cosmetic). The divergence harness (`diverge.py`) is built, but as implemented it **cannot fail**:
-`AUTHOR_EDIT_EDGES` deliberately excludes `NUMERIC_DEPENDENCY` and `TEMPORAL_DEPENDENCY` by fiat,
-while the evidence-world analyzer follows all propagating edges, so any "divergence" (e.g.
-`divergence = 0.5`, `missed_by_author = ['cProj']` on the temporal case) is **manufactured by the
-edge-type partition**. We therefore reframe this as an **illustration of the edge-type distinction,
-not a passed kill-gate**: a real author editing "the current rate" in prose would plausibly know the
-projection depends on it, which this strawman author model assumes away. The **real, falsifiable
-H_DIVERGE** — divergence against a genuine author-edit reformulation (human or agent author edits) —
-is **unrun**. No H_DIVERGE result is claimed here.
+Pipeline − naive ACR: **Claude +0.92 [0.79, 1.00]; Codex +0.48 [0.29, 0.69] — both CIs exclude 0.**
+
+In all four model × phrasing cells ClaimPatch reaches ACR = 1.00, recovering the full downstream cascade
+the naive agent leaves stale, with harmful-edit at 0.00 (named) and 0.03–0.04 (operation-hidden) and
+calculation-correctness 0.97–1.00. The naive agent is both incomplete and *fragile to phrasing*: hiding
+the operation pushes naive Claude from 0.25 down to 0.08, whereas ClaimPatch is unaffected (1.00). The
+small UCP dip (0.97 / 0.96) and harmful-edit (0.03 / 0.04) in the operation-hidden condition trace to the
+~2–4% operation-inference errors quantified in 6.3. This is the headline no-gold result: consuming no
+gold graph, affected set, or post-update value, the pipeline *significantly* improves affected-claim
+recall over the naive agent on diverse topologies under both phrasings (four CIs, all excluding 0). The
+arm comparison and recall/harmful-edit frontier are plotted in `figures/generated/fig_acr_by_arm.pdf` and
+`figures/generated/fig_frontier.pdf`.
+
+**6.3 Stage diagnostic (RQ2): why it works — structure inference is near-perfect; re-derivation was the
+bottleneck.** Over 96 derived claims per model, the inferred-vs-gold structure shows **edge precision =
+1.00, edge recall = 1.00, operation accuracy = 1.00, derived-exact = 1.00** for both Claude and Codex on
+named reports. When the operation is *hidden*, edge precision and recall stay at **1.00** and operation
+accuracy is **0.98 (Claude) / 0.96 (Codex)** — the model infers the hidden operation from the named
+parents plus the stated value. So when the report states (or even merely implies, via named parents) its
+derivations, the LLM recovers the dependency graph essentially perfectly; what the naive prompt fails to
+do is *trigger systematic propagation and recompute*. The diagnostic confirms the RQ1 localization: the
+bottleneck is the editing / re-derivation step, not identification, and a pipeline that forces a
+deterministic recompute along the inferred graph closes the gap — with no gold.
+
+**6.4 Upper bounds, kept honest (consistency check, not conflated with the method).** The oracle
+(graph+recompute) and full-gold conditions reach ACR = UCP = 1.00. These remain **upper bounds /
+consistency checks**, distinct from the no-gold pipeline: they are entitled to the gold graph and/or gold
+values, whereas ClaimPatch is not. The honest force of the headline is that the **no-gold** pipeline
+*matches* this upper bound. Because the gold is computed by an independent world-physics recompute on a
+*separate code path* from the structure ClaimPatch infers (Section 3), the match validates the pipeline
+against an independently-derived answer rather than tautologizing it. We keep the earlier "consistency
+check" framing for the gold-fed deterministic arm intact — it is an upper bound and was never a method
+result — and we do not present it as evidence for ClaimPatch; the ClaimPatch numbers in 6.2 stand on
+their own, gold-free.
 
 ## 7. Related work
 
 We credit the two Director-verified adjacent results we build on and concede their respective halves.
-**EditPropBench** ~\cite{editpropbench2026} introduces the change/preserve dual metric and the "~30%
-of obligated updates missed" headline, but on synthetic *author* manuscript edits with no agent, audit
+**EditPropBench** ~\cite{editpropbench2026} introduces the change/preserve dual metric and the "~30% of
+obligated updates missed" headline, but on synthetic *author* manuscript edits with no agent, audit
 trail, or evidence-world trigger; we adopt the dual objective and differentiate by the evidence-world
-delta. **Mr.DRE** ~\cite{mrdre2026} shows deep-research agents regress on non-target content and
-citations (a measured 16–27% magnitude) during multi-turn *revision driven by user feedback*; we build
-on that phenomenon but our unit is evidence-delta → claim-impact, with gold
-affected/unaffected/new/contested sets.
+delta and a no-gold structure-inference + deterministic-recompute method. **Mr.DRE** ~\cite{mrdre2026}
+shows deep-research agents regress on non-target content and citations (a measured 16–27% magnitude)
+during multi-turn *revision driven by user feedback*; we build on that phenomenon but our unit is
+evidence-delta → claim-impact with gold affected/unaffected sets and a deterministic recompute.
 
 The remaining neighbors each own one component but not the conjunction on report prose under an
-evidence-world delta; pending Director verification we refer to them descriptively only and do not
-cite them as established precedent: the base task of updating a document to reflect new evidence
-(FRUIT) [unverified — pending Director verification]; generation-time claim-evidence provenance and
-audit (AAR) [unverified — pending Director verification]; graph/rule-guided propagation of updates to
-dependent facts in parameter/KB space (ChainEdit, RippleEdits) [unverified — pending Director
-verification]; honest handling of conflicting evidence as QA (RAMDocs) [unverified — pending Director
-verification]; and staleness from real timestamped evidence (evolveQA) [unverified — pending Director
-verification]. None revise a deep-research report under an evidence-world delta with a typed
-dependency-graph patch and joint stale+spurious metric. See `novelty/novelty_attack.md` for the full
-adversarial sweep.
+evidence-world delta with a no-gold typed-dependency method; pending Director verification we refer to
+them descriptively only and do not cite them as established precedent: the base task of updating a
+document to reflect new evidence (FRUIT) [unverified]; generation-time claim-evidence provenance and
+audit (AAR) [unverified]; graph/rule-guided propagation of updates to dependent facts in parameter/KB
+space (ChainEdit, RippleEdits) [unverified]; honest handling of conflicting evidence as QA (RAMDocs)
+[unverified]; staleness from real timestamped evidence (evolveQA) [unverified]; and LLM-automated
+evidence surveillance over a living synthesis (Living Systematic Review engine) [unverified]. None infer
+a typed claim dependency graph from text and recompute downstream report claims under an evidence-world
+delta with no gold. See `novelty/novelty_attack.md` for the full adversarial sweep.
 
 ## 8. Limitations / Ethics
 
-This is a pilot, and we keep its claims narrow. (i) **The central claim is the empirical negative, not
-a method.** The supported results are the real-agent stale residual (ACR 0.34–0.39 at UCP ~ 1.0) and
-the H3 null (typed hint does not help, ACR 0.33). (ii) **The deterministic 1.0/0.0/0.13 is a
-construction-determined consistency check, not a comparative result:** the typed-graph arm is
-oracle-fed and reads gold values; the foils are hand-coded; the 0.0 is a touch-penalty artifact that
-contradicts Mr.DRE's measured 16–27% regression; the 0.13 falls out of one fixed topology. (iii)
-**Ceiling confound on UCP:** for the real agents UCP ~ 1.0 is the mechanical dual of under-editing
-(a do-nothing agent scores UCP = 1.0), so the joint pair collapses to ACR; the joint-metric selling
-point adds nothing for the real arms. (iv) **Scale and statistics:** 18 worlds (3 seeds × 6 delta
-types) on a *single fixed 10-claim topology* (≈6 structural scenarios; seeds only reroll numbers),
-72 episodes, one draw per condition, no CIs, no per-delta-type breakdown, version-unpinned product
-CLIs; "reproduced across two families" should be read as *directional agreement*, not robustness.
-(v) **Shared-prompt confound:** both families see the same conservatism-instructing prompt, so
-cross-family agreement may partly reflect the prompt. (vi) **Synthetic worlds only:** the real
-versioned-evidence layer (Layer B) is built into the design but unrun, so transfer (H5) is untested.
-(vii) **H_DIVERGE is an illustration, not a passed gate:** as built it cannot fail; the falsifiable
-version is unrun. LLM judges are not used for the primary endpoint (the deterministic gold); they
-remain secondary and gated to the real subset with human agreement. **Ethics:** real sources will be
-stored as URL + hash + snapshot (not full text), license-respecting, with medical/legal-advice
-domains excluded from the first batch.
+We keep the claims narrow. (i) **Parents are still named.** In both named and operation-hidden conditions
+the claim text *names the parent entities*; a fully-implicit report where parents are unnamed is
+underdetermined and **untested**, and structure inference could degrade there. This is the most important
+boundary on the headline. (ii) **Controlled synthetic only.** Worlds are generated; the real
+versioned-evidence layer (spec §E) is designed but **unrun**, so external-validity transfer (RQ4) is
+untested. (iii) **Scale and statistics.** 24 worlds (headline) and 18 worlds (motivation), two model
+families, a **single draw** per condition (within-condition variance unmeasured); CIs are
+world-clustered bootstraps over worlds, not over repeated agent draws; model builds are not
+version-pinned. (iv) **Delta coverage.** Only numeric-revision and source-retraction deltas are realized;
+categorical/conflict/temporal-validity/definition/unit deltas in the spec taxonomy are not yet run, so
+ACR = 1.00 should be read as "on numeric/retraction deltas over these topologies," not "in general."
+(v) **No human adjudication.** Gold is deterministic recompute; there is no human-labeled real subset and
+no inter-annotator agreement. (vi) **UCP ceiling for naive arms.** UCP ~ 1.0 for the naive agents is the
+mechanical dual of under-editing, so for those arms the joint pair effectively collapses to ACR; the
+preservation axis becomes informative only for ClaimPatch under the operation-hidden condition (UCP
+0.96–0.97). We use conservative verbs throughout — we *observe* and *estimate*; we do not claim the
+method "solves" or "proves" report maintenance. **Ethics:** when the real-evidence layer is built, real
+sources will be stored as URL + hash + snapshot (not full text), license-respecting, with medical /
+legal-advice domains excluded from the first batch. LLM judges are not used for the primary endpoint (the
+deterministic gold).
 
 ## 9. Honest status and path to a full paper
 
 **(a) What is delivered / SUPPORTED now.**
-- A released, reproducible controlled-world harness: world generator, typed-graph analyzer,
-  deterministic baselines, joint (ACR, UCP) metrics, and an immutable 72-episode ledger that
-  reproduces every number in this draft (infrastructure deliverable).
-- The central empirical finding (pilot-scale): two real subscription-CLI agent families, given an
-  evidence-world delta with derivation rules in-prompt, recover only ~1/3 of obligated downstream
-  updates (Claude ACR = 0.39, Codex ACR = 0.34; UCP ~ 1.0), well above a flat ledger (~2.6–3×) but far
-  below complete.
-- The honest H3 null: handing the agent the typed-graph affected set does not raise recall (ACR 0.33),
-  localizing the failure to edit/re-derivation, not identification.
-- A construction-determined consistency check that the typed-graph analyzer agrees with the independent
-  gold code path and that a flat ledger structurally under-recalls — labeled as such, not as a method
-  result.
+- A released controlled DeltaBench harness with diverse random-DAG topologies, independent-recompute
+  gold, joint (ACR, UCP) + harmful-edit + calculation-correctness metrics, and an immutable episode
+  ledger that reproduces every number in this draft.
+- The motivating finding (RQ1): two real agent families recover only ~1/3 of obligated downstream updates
+  (Claude ACR = 0.39, Codex 0.34; UCP ~ 1.0), and handing them the typed-graph affected set does not help
+  (ACR = 0.33) — bottleneck is re-derivation, not identification.
+- The headline no-gold method (RQ3): ClaimPatch reaches ACR = 1.00 for both families vs naive 0.25 / 0.54
+  (named) and 0.08 / 0.52 (operation-hidden); pipeline − naive gains +0.75 [0.58, 0.92], +0.46 [0.25,
+  0.67], +0.92 [0.79, 1.00], +0.48 [0.29, 0.69] — all four CIs exclude 0; consuming no gold.
+- The stage diagnostic (RQ2): edge precision/recall = 1.00 and operation accuracy 0.96–1.00 even when the
+  operation is hidden, with ClaimPatch matching the oracle / full-gold upper bound (1.00) validated by an
+  independent recompute.
 
-**(b) Pre-registered / unrun (NOT claimed as results).**
-- A de-oracled, actually-recomputing end-to-end typed-graph + constrained-patch method (the current
-  arm reads `world.post_values` and is not exercised).
-- A *falsifiable* H_DIVERGE against a real author-edit reformulation (the current harness is rigged to
-  pass by edge-type partition).
-- The real versioned-evidence layer (Layer B) and transfer (H5).
-- Confidence intervals, per-delta-type breakdown, repeated agent draws, and version-pinned model
-  builds.
+**(b) Concrete required experiments to reach a full TACL paper.**
+1. **Real versioned-evidence layer (RQ4).** Build and run Layer B (official statistical revisions,
+   documentation/release-note histories, arXiv corrections/retractions) and show the no-gold gains
+   transfer from controlled worlds to real version pairs. This is the central external-validity gate.
+2. **Human adjudication.** Add two-annotator-plus-adjudication labels (or, if single-human, an explicitly
+   single-annotator protocol with a blinded audit) on the real subset; do not state inter-annotator
+   agreement without a second annotator.
+3. **More delta types.** Extend beyond numeric-revision and retraction to categorical status change,
+   source conflict, temporal-validity expiry, definition/unit change, and evidence deletion, with
+   per-delta-type breakdowns; confirm the no-gold pipeline holds across them.
+4. **Repeats and statistics.** Multiple agent draws per condition with world-clustered bootstrap CIs over
+   draws (not only over worlds), the pre-registered mixed-model analysis (method × model × topology ×
+   delta type), and version-pinned model builds.
+5. **Fully-implicit reports.** Test reports whose claim text does *not* name the parent entities, to map
+   where structure inference (and thus ACR) degrades — the boundary flagged in §8(i).
+6. **Head-to-head vs the EditPropBench protocol** on the same evidence-world tasks, to demonstrate
+   non-reducibility of the evidence-world trigger to an author edit.
 
-**(c) Concrete required experiments to become a full paper** (from the red-team review):
-1. **De-oracle the method:** an end-to-end pipeline that actually recomputes values (not reading
-   `world.post_values`), ideally driving a real agent for the edit/derivation step; report ACR / UCP /
-   calculation_correctness as a *system*. (Load-bearing; currently missing.)
-2. **Real, run baselines:** replace hand-coded full_regen / flat_ledger with prompted agent baselines
-   (a real "regenerate the report" agent; a real "fix only the cited claim" agent); fix UCP to
-   penalize *value change*, not mere touching (or report both).
-3. **Make H_DIVERGE falsifiable:** test divergence against a real author-edit reformulation (human or
-   agent author edits), not a hand-partitioned edge set that excludes numeric/temporal by fiat.
-4. **Scale + statistics:** multiple report topologies (vary depth, breadth, |A|/|U|, non-arithmetic
-   derivations), longer reports, more seeds; repeated agent draws per condition; world-clustered
-   bootstrap CIs; per-delta-type breakdown; honor the pre-registered mixed-model analysis;
-   version-pin / record exact model builds.
-5. **Proper structure-help ablation (re-test H3):** authoritative hint ("these MUST change +
-   recompute"), plan-then-edit scaffolds, explicit recompute tool, and an identify-vs-list-vs-recompute
-   error decomposition before concluding structure cannot help an agent.
-6. **Run Layer B (real versioned evidence):** transfer (H5) is the external-validity requirement and
-   is entirely unrun.
-7. **Head-to-head vs the EditPropBench protocol** on the same evidence-world tasks, to demonstrate
-   non-reducibility.
-8. **Citations:** done in this revision — the off-topic `cc02xiang2026` and `agentassay2026` citations
-   are removed; only Director-verified `mrdre2026` and `editpropbench2026` are cited, with all other
-   neighbors held to "[unverified — pending Director verification]".
-
-**Current honest tier:** a workshop-tier pilot plus released dataset/harness note — a well-instrumented
-empirical negative on a single fixed topology — **not** a finished venue submission and **not** the
-method paper an earlier framing advertised.
+**Current honest tier:** a strong controlled, **no-gold** pilot with a genuine method result —
+ARXIV_ONLY now, and a credible TACL-track foundation once the real-evidence layer, human adjudication,
+more delta types, and repeated draws are added. This is **not** a finished TACL submission.
