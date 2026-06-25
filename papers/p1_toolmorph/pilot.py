@@ -214,11 +214,12 @@ if __name__ == "__main__":  # pragma: no cover
     ap.add_argument("--max-steps", type=int, default=8)
     args = ap.parse_args()
 
-    from papers.p1_toolmorph.transforms.families import STRICT_FAMILIES
+    from papers.p1_toolmorph.transforms.families import CONTROL_FAMILIES, STRICT_FAMILIES
     tasks = all_tasks()[: args.n_tasks] if args.n_tasks else all_tasks()
     if args.transforms:
-        want = set(args.transforms.split(","))
-        transforms = [c() for c in STRICT_FAMILIES if c().family in want]
+        want = [w for w in args.transforms.split(",")]
+        avail = {c().family: c for c in (STRICT_FAMILIES + CONTROL_FAMILIES)}
+        transforms = [avail[w]() for w in want if w in avail]
     else:
         transforms = all_strict_transforms()
     commit = os.popen("git rev-parse --short HEAD").read().strip() or "uncommitted"
