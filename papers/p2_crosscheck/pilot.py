@@ -150,11 +150,16 @@ if __name__ == "__main__":  # pragma: no cover
     import os
     ap = argparse.ArgumentParser()
     ap.add_argument("--pairs", default="claude:codex,codex:claude")
+    ap.add_argument("--hard", action="store_true", help="use the harder fully-specified corpus")
     ap.add_argument("--ledger", default="artifacts/run_ledger.jsonl")
     args = ap.parse_args()
     pairs = [tuple(p.split(":")) for p in args.pairs.split(",")]
     commit = os.popen("git rev-parse --short HEAD").read().strip() or "uncommitted"
-    out = run_pilot(pairs, ledger_path=args.ledger, git_commit=commit)
+    cases = None
+    if args.hard:
+        from papers.p2_crosscheck.mutations.hard_cases import hard_cases
+        cases = hard_cases()
+    out = run_pilot(pairs, cases=cases, ledger_path=args.ledger, git_commit=commit)
     print(json.dumps({"by_workflow": out["by_workflow"],
                       "by_author_workflow": out["by_author_workflow"]}, indent=2))
     print(f"episodes: {out['n_episodes']}")
