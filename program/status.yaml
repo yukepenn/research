@@ -9,18 +9,20 @@ portfolio:
     pilot_evidence: "Real Claude+Codex (interactive, no API cost): enum_encoding degrades both (claude -20pt, codex -11pt); structural_nesting & lexical_aliasing robust (0). Baseline 1.0 after fixing single-shot id confound. Only 1 of 3 families degrades -> not yet PILOT_PASS; need more transforms/tasks + STNF recovery on enum. See papers/p1_toolmorph/evidence/pilot_2026-06-25.md"
     novelty_note: "PIPE(2602.01611) occupies EQ+META; re-architected around label-free STNF transfer to UNSEEN transforms. KILL if content-control erases effect AND STNF cannot beat description-rewrite."
   p2_crosscheck:
-    state: NOVELTY_PASS_NARROWED
-    confidence: 0.45
-    active_issues: [P2-SPEC, P2-MUT, P2-HARNESS, P2-BUDGET]
-    blockers: ["model runs need credentials + budget (HUMAN GATE)"]
-    next_gate: PILOT
+    state: PILOT_RUNNING
+    confidence: 0.35
+    active_issues: [P2-PILOT-done-inconclusive, P2-HARDER-CORPUS, P2-DRAFT]
+    blockers: ["empirical differentiation needs a mid-difficulty fairly-specified defect corpus (no_review ~0.4-0.6)"]
+    next_gate: PILOT_PASS
+    pilot_evidence: "Real Claude+Codex: all workflows tie at 0.80 (no_review=author_more_compute=cross_family_review). Corpus at ceiling (8/10 one-shot); 2 non-1.0 cases were underspecified BENCHMARK BUGS (fixed, excluded). H2 PARTIAL/underpowered. Weakest of the three pilots; methodology + corpus-difficulty diagnosis are the contributions. See papers/p2_crosscheck/evidence/pilot_2026-06-25.md"
     novelty_note: "cc02(KDD'26) owns bidirectional 2x2. Survival=conjunction: budget-matched author-extra-compute arm + defect-type complementarity + pre-call held-out router."
   p3_deltaresearch:
-    state: NOVELTY_PASS_NARROWED
-    confidence: 0.45
-    active_issues: [P3-WORLD, P3-EVAL, P3-GRAPH, P3-DIVERGE]
-    blockers: ["agent runs need credentials + budget (HUMAN GATE)"]
-    next_gate: PILOT
+    state: PILOT_RUNNING
+    confidence: 0.62
+    active_issues: [P3-PILOT-done-strong, P3-ERROR-DECOMP, P3-REAL-LAYER, P3-HDIVERGE-quantify, P3-DRAFT-done]
+    blockers: ["real versioned-evidence layer + human adjudication are gated next steps"]
+    next_gate: PILOT_PASS
+    pilot_evidence: "STRONGEST pilot. Real Claude+Codex miss ~60-65% of obligated downstream updates (ACR 0.33-0.39, UCP ~1.0); typed-graph method (deterministic) ACR=UCP=1.0; full-regen UCP=0.0; flat ledger ACR=0.13. Honest negative: typed-hint did not help the LLM -> bottleneck is editing/re-derivation, sharpening the structured-pipeline case. See papers/p3_deltaresearch/evidence/pilot_2026-06-25.md"
     novelty_note: "EditPropBench(2605.02083) owns dual metric; Mr.DRE owns phenomenon. Survival=typed-graph patch winning over flat ledger+full regen on evidence-WORLD delta; gated by H_DIVERGE."
   p4_harnessguard:
     state: KILLED
