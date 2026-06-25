@@ -84,8 +84,12 @@ def _compute(op, parent_vals, const):
     return None
 
 
-def _text(op, cid, parents, const, names):
+def _text(op, cid, parents, const, names, style="named"):
     pn = [names[p] for p in parents]
+    if style == "vague":
+        # parents named, but the OPERATION is hidden (the method must infer it)
+        joined = " and ".join(pn)
+        return f"Metric {cid}, derived from {joined}, is {{v}}."
     if op == "SUM":
         return f"The total of {', '.join(pn)} is {{v}}."
     if op == "AVG":
@@ -119,7 +123,8 @@ _NAMEPOOL = ["Region A revenue", "Region B revenue", "Region C revenue", "Unit c
              "Baseline figure", "Updated figure"]
 
 
-def generate_world_v2(seed: int = 0, delta_type: str = "numeric_revision") -> V2World:
+def generate_world_v2(seed: int = 0, delta_type: str = "numeric_revision",
+                      style: str = "named") -> V2World:
     rng = rng_for("p3v2", seed)
     topology = rng.choice(["chain", "tree", "diamond", "fanin", "fanout", "mixed"])
     n_base = rng.randint(2, 4)
@@ -160,7 +165,7 @@ def generate_world_v2(seed: int = 0, delta_type: str = "numeric_revision") -> V2
         val = _compute(op, [claims[p].value for p in parents], const)
         nm = f"metric {cid}"
         names[cid] = nm
-        txt = _text(op, cid, parents, const, names).replace("{v}", str(_round(val)))
+        txt = _text(op, cid, parents, const, names, style).replace("{v}", str(_round(val)))
         claims[cid] = V2Claim(cid, op, txt, val, parents=parents, const=const, citation="(derived)")
         order.append(cid)
         avail.append(cid)
@@ -208,12 +213,13 @@ def generate_world_v2(seed: int = 0, delta_type: str = "numeric_revision") -> V2
 
 
 def generate_worlds_v2(n: int = 20, seed0: int = 0,
-                       delta_types=("numeric_revision", "source_retraction")) -> list[V2World]:
+                       delta_types=("numeric_revision", "source_retraction"),
+                       style: str = "named") -> list[V2World]:
     out = []
     i = seed0
     while len(out) < n:
         for dt in delta_types:
-            w = generate_world_v2(i, dt)
+            w = generate_world_v2(i, dt, style)
             # keep only worlds with a non-trivial downstream cascade (>=1 derived in A)
             if any(w.claims[c].kind not in ("base", "fact") for c in w.gold_A):
                 out.append(w)

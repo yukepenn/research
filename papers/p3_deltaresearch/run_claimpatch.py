@@ -66,8 +66,9 @@ def _score(patch, world):
             "calc": calc_correctness(patch, world)}
 
 
-def run(models, *, n_worlds=20, seed0=0, ledger_path, git_commit="uncommitted", timeout=150):
-    worlds = generate_worlds_v2(n=n_worlds, seed0=seed0)
+def run(models, *, n_worlds=20, seed0=0, ledger_path, git_commit="uncommitted", timeout=150,
+        style="named"):
+    worlds = generate_worlds_v2(n=n_worlds, seed0=seed0, style=style)
     ledger = RunLedger(ledger_path)
     rows = []  # (arm, model, world_id, scores)
 
@@ -130,9 +131,10 @@ if __name__ == "__main__":  # pragma: no cover
     ap.add_argument("--models", default="claude,codex")
     ap.add_argument("--n", type=int, default=20)
     ap.add_argument("--seed0", type=int, default=0)
+    ap.add_argument("--style", default="named")
     ap.add_argument("--ledger", default="artifacts/run_ledger.jsonl")
     args = ap.parse_args()
     commit = os.popen("git rev-parse --short HEAD").read().strip() or "uncommitted"
     out = run(args.models.split(","), n_worlds=args.n, seed0=args.seed0,
-              ledger_path=args.ledger, git_commit=commit)
+              ledger_path=args.ledger, git_commit=commit, style=args.style)
     print(json.dumps(out, indent=2))

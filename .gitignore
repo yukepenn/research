@@ -18,4 +18,5 @@ artifacts/run_ledger_singleshot_confounded.jsonl
 program/wrapup_specs/three_paper_wrapup_pack/
 artifacts/p3v2_calib.jsonl
 artifacts/p3v2_confirmatory.json
-artifacts/p3v2_ledger.jsonl
+
+artifacts/p3v2_vague_result.json
