@@ -190,10 +190,33 @@ class ErrorRepresentation(Transform):
         return f"{cat}: {detail}"
 
 
+class EnumEncodingWithLegend(EnumEncoding):
+    """Information-matched control for EnumEncoding (manual H3 / Schema First rebuttal).
+
+    Identical opaque codes as EnumEncoding, BUT the tool description carries a
+    legend mapping each code to its original value, so the *information* the model
+    needs is preserved and only the *representation* changes. Comparing this to
+    plain (legend-less) EnumEncoding separates "representation changed" (both
+    degrade) from "information hidden" (only the legend-less variant degrades)."""
+    family = "enum_encoding_legend"
+
+    def view_description(self, desc, ctx):
+        legends = []
+        for field, m in ctx.get("maps", {}).items():
+            pairs = ", ".join(f"{code}={val}" for val, code in m.items())
+            legends.append(f"{field}: {pairs}")
+        if not legends:
+            return desc
+        return desc + " Code legend — " + "; ".join(legends) + "."
+
+
 STRICT_FAMILIES = [
     LexicalAliasing, StructuralNesting, EnumEncoding,
     OptionalDefaultExposure, ResponseRepresentation, ErrorRepresentation,
 ]
+
+# Information-matched controls (not part of the 6 strict families; used for H3)
+CONTROL_FAMILIES = [EnumEncodingWithLegend]
 
 
 def all_strict_transforms() -> list[Transform]:
