@@ -1,0 +1,83 @@
+program: p1_p2_p3_post_pilot_wrapup
+objective: produce evidence-gated venue packages, not forced submissions
+no_extra_metered_cost: true
+external_actions_require_human: true
+terminal_states: [SUBMIT_READY, ARXIV_ONLY, HOLD, KILL]
+
+papers:
+  p1:
+    name: ToolMorph
+    primary_venue: TMLR
+    decisive_gate: >-
+      Information/readability-matched interface effect plus label-free STNF recovery
+      on held-out tools and transformation compositions.
+    current_risk: ceiling and unrun remedy
+  p2:
+    name: CrossCheck
+    primary_venue: FSE_2027
+    deadline: 2026-10-02_AoE
+    decisive_gate: >-
+      Valid real-repository corpus, strict resource matching, stable defect complementarity,
+      and held-out pre-call router benefit.
+    current_risk: current corpus uninformative
+  p3:
+    name: DeltaResearch
+    primary_venue: TACL
+    alternative: ARR_but_never_parallel_with_TACL
+    decisive_gate: >-
+      End-to-end no-gold pipeline plus real versioned-evidence layer and reliable annotation.
+    current_risk: oracle-fed method result and missing real layer
+
+blocks:
+  - id: A
+    hours: 0-3
+    tasks:
+      - freeze current pilot commit/tag
+      - validate ledgers and hashes
+      - split three worktrees/repository roots
+      - update novelty audits
+      - create dashboards and contracts
+  - id: B
+    hours: 3-10
+    tasks:
+      - p1 harder tasks and matched transformations
+      - p2 real repository corpus and validation
+      - p3 no-gold pipeline and real evidence cases
+      - construct sealed manifests
+  - id: C
+    hours: 10-18
+    tasks:
+      - calibration runs only
+      - fix infrastructure and task ambiguity
+      - power/sequential analysis
+      - apply kill gates
+      - freeze protocols and analysis plans
+  - id: D
+    hours: 18-32
+    tasks:
+      - sealed confirmatory runs
+      - preserve all failures
+      - frozen analysis only after unsealing
+  - id: E
+    hours: 32-39
+    tasks:
+      - clean independent reproduction
+      - novelty red team
+      - methods red team
+      - overclaim red team
+  - id: F
+    hours: 39-48
+    tasks:
+      - generated tables and figures
+      - venue-native LaTeX review PDFs
+      - identified arXiv PDFs
+      - anonymous and public artifact drafts
+      - terminal decision memos
+
+human_gates:
+  - author list and ordering
+  - final scientific claims
+  - key raw trace and citation audit
+  - licenses and ethics attestations
+  - arXiv permanent license
+  - any external posting or submission
