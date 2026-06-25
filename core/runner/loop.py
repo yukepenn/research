@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from typing import Sequence
 
 from core.adapters.base import Message, ModelAdapter, ToolSpec, Usage
-from core.environments.base import Environment, apply_executor
+from core.environments.base import Environment
 from core.tracing.events import Trajectory
 
 
@@ -50,6 +50,9 @@ def run_episode(
     """
     env.reset(seed=seed)
     tools = list(tool_schemas if tool_schemas is not None else env.tools())
+    # Dispatch uses each PRESENTED tool's own (possibly codec-bound) executor,
+    # so transformed tool views route through their request/response codecs.
+    dispatch = {t.name: t for t in tools}
     traj = Trajectory()
     usage = Usage()
     messages = [Message("system", system), Message("user", task_prompt)]
@@ -85,7 +88,10 @@ def run_episode(
         for tc in resp.tool_calls:
             traj.record(step, "tool_call", {"name": tc.name, "arguments": tc.arguments})
             try:
-                result = apply_executor(env, tc.name, tc.arguments)
+                tool = dispatch.get(tc.name)
+                if tool is None or tool.executor is None:
+                    raise KeyError(f"no such tool: {tc.name}")
+                result = tool.executor(tc.arguments)
                 payload = {"name": tc.name, "ok": True, "result": result}
             except Exception as exc:  # noqa: BLE001 - record, don't crash the loop
                 payload = {"name": tc.name, "ok": False, "error": str(exc)}
