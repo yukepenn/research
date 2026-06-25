@@ -1,0 +1,18 @@
+# Provider price snapshot — HUMAN GATE.
+#
+# Copy this to program/pricing.yaml and fill in REAL list prices from each provider's
+# official pricing page, recording the snapshot date. Do NOT guess prices (manual 1.1, 6.8).
+# Until program/pricing.yaml exists with real values, the budget estimator returns
+# token estimates only and every paid run remains a human gate.
+#
+# Units: USD per 1,000,000 tokens.
+#
+# _snapshot_date: "YYYY-MM-DD"        # the date you read the prices
+# <exact-model-id>:
+#   in_per_mtok:  0.0                 # input price per 1M tokens
+#   out_per_mtok: 0.0                 # output price per 1M tokens
+#
+# Example shape (values intentionally omitted — fill from the official page):
+# claude-opus-4-8:
+#   in_per_mtok:  null
+#   out_per_mtok: null
