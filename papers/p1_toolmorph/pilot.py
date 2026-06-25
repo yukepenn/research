@@ -15,8 +15,9 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 
-from core.adapters.cli import cli_available, cli_complete, extract_json_plan
+from core.adapters.cli import CLIChatAdapter, cli_available, cli_complete, extract_json_plan
 from core.experiment_registry.ledger import RunLedger, make_entry
+from core.runner.loop import run_episode
 from core.statistics.resampling import paired_cluster_bootstrap_diff
 from core.util import sha256_obj, short_id
 from papers.p1_toolmorph.metamorphic import present_tools
@@ -120,8 +121,39 @@ def run_pilot_episode(model: str, task, transform, *, rep: int, ledger: RunLedge
                           n_calls, res.model_id, errors)
 
 
+def run_pilot_episode_interactive(model: str, task, transform, *, rep: int, ledger: RunLedger,
+                                  git_commit: str = "uncommitted", max_steps: int = 8,
+                                  timeout: int = 150) -> EpisodeOutcome:
+    """Interactive episode: the model sees each tool result before the next call
+    (removes the single-shot id-prediction confound)."""
+    env = task.env_factory()
+    tools = present_tools(env, transform)
+    adapter = CLIChatAdapter(model, timeout=timeout)
+    res = run_episode(adapter, env, system=SYSTEM_PROMPT, task_prompt=task.task_prompt,
+                      tool_schemas=tools, max_steps=max_steps, seed=rep)
+    success = task_passed(res.final_state, task)
+    fam = getattr(transform, "family", "original")
+    n_calls = sum(1 for e in res.trajectory.events if e.type == "tool_call")
+    trace_hash = ledger.store_trace(res.trajectory.to_dict())
+    ledger.append(make_entry(
+        run_id=short_id(model, task.task_id, fam, rep, "p1_interactive_v1"),
+        paper_id="p1_toolmorph", git_commit=git_commit,
+        task_hash=sha256_obj(task.task_id)[:12], environment_hash=env.environment_hash(),
+        model_provider="cli_subscription", model_id=f"{model}:{adapter.detected_model_id}",
+        harness_hash="p1_interactive_v1", oracle_version=ORACLE_VERSION, raw_trace_hash=trace_hash,
+        status="SUCCESS" if res.status in ("SUCCESS", "TIMEOUT") else "AGENT_FAILURE",
+        cost_usd=0.0, seed=rep, latency_seconds=res.usage.latency_seconds,
+        result={"task_success": success, "transform": fam, "n_calls": n_calls,
+                "episode_status": res.status},
+        notes="interactive plan pilot (subscription CLI, no API cost)"))
+    return EpisodeOutcome(model, task.task_id, fam, rep, success,
+                          plan_parsed=res.status != "AGENT_FAILURE", n_calls=n_calls,
+                          model_id=adapter.detected_model_id)
+
+
 def run_pilot(models, tasks=None, transforms=None, *, reps: int = 1,
-              ledger_path: str, git_commit: str = "uncommitted", timeout: int = 180) -> dict:
+              ledger_path: str, git_commit: str = "uncommitted", timeout: int = 180,
+              interactive: bool = False, max_steps: int = 8) -> dict:
     """Run the paired original-vs-transform pilot and return per-(model,transform)
     degradation with a task-clustered CI. Writes every episode to the ledger."""
     tasks = tasks if tasks is not None else all_tasks()
@@ -129,17 +161,22 @@ def run_pilot(models, tasks=None, transforms=None, *, reps: int = 1,
     ledger = RunLedger(ledger_path)
     outcomes: list[EpisodeOutcome] = []
 
+    def _ep(model, task, tr, rep):
+        if interactive:
+            return run_pilot_episode_interactive(model, task, tr, rep=rep, ledger=ledger,
+                                                 git_commit=git_commit, max_steps=max_steps,
+                                                 timeout=timeout)
+        return run_pilot_episode(model, task, tr, rep=rep, ledger=ledger,
+                                 git_commit=git_commit, timeout=timeout)
+
     for model in models:
         if not cli_available(model):
             continue
         for task in tasks:
             for rep in range(reps):
-                # original
-                outcomes.append(run_pilot_episode(model, task, None, rep=rep, ledger=ledger,
-                                                  git_commit=git_commit, timeout=timeout))
+                outcomes.append(_ep(model, task, None, rep))
                 for tr in transforms:
-                    outcomes.append(run_pilot_episode(model, task, tr, rep=rep, ledger=ledger,
-                                                      git_commit=git_commit, timeout=timeout))
+                    outcomes.append(_ep(model, task, tr, rep))
 
     # analysis: paired degradation per (model, transform)
     results = {}
@@ -173,6 +210,8 @@ if __name__ == "__main__":  # pragma: no cover
     ap.add_argument("--transforms", default="", help="comma families, blank=all")
     ap.add_argument("--reps", type=int, default=1)
     ap.add_argument("--ledger", default="artifacts/run_ledger.jsonl")
+    ap.add_argument("--interactive", action="store_true")
+    ap.add_argument("--max-steps", type=int, default=8)
     args = ap.parse_args()
 
     from papers.p1_toolmorph.transforms.families import STRICT_FAMILIES
@@ -184,6 +223,7 @@ if __name__ == "__main__":  # pragma: no cover
         transforms = all_strict_transforms()
     commit = os.popen("git rev-parse --short HEAD").read().strip() or "uncommitted"
     out = run_pilot(args.models.split(","), tasks, transforms, reps=args.reps,
-                    ledger_path=args.ledger, git_commit=commit)
+                    ledger_path=args.ledger, git_commit=commit,
+                    interactive=args.interactive, max_steps=args.max_steps)
     print(json.dumps(out["results"], indent=2))
     print(f"episodes: {out['n_episodes']}")

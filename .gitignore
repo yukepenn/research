@@ -13,3 +13,5 @@ artifacts/raw_private/
 sealed_tests/**/labels/
 
 artifacts/pilot_smoke.jsonl
+
+artifacts/run_ledger_singleshot_confounded.jsonl
