@@ -144,6 +144,34 @@ def combined_score(patch, world) -> CombinedScore:
     return CombinedScore(acr=a, ucp=u, harmonic=harmonic, worst=min(a, u))
 
 
+def correct_update_recall(patch, world) -> float:
+    """Stricter than ACR: of the must-change claims (gold A), the fraction that the
+    patch BOTH identified AND updated to the correct content — numeric value match,
+    correct boolean status, or (for a retraction/loss of support, gold value None)
+    at least flagged as changed. No vacuous 1.0 for empty-numeric cases."""
+    A = list(world.gold_A)
+    if not A:
+        return 1.0
+    edited = set(getattr(patch, "edited", patch))
+    nv = getattr(patch, "new_values", {})
+    correct = 0
+    for c in A:
+        pv = world.post_values.get(c)
+        if pv is None:                                   # retraction / lost support
+            if c in edited:
+                correct += 1
+        elif isinstance(pv, bool):
+            if c in nv and bool(nv[c]) == pv:
+                correct += 1
+        elif isinstance(pv, (int, float)):
+            if c in nv and abs(float(nv[c]) - float(pv)) < 1e-6:
+                correct += 1
+        else:                                            # categorical / textual
+            if c in edited:
+                correct += 1
+    return correct / len(A)
+
+
 def full_report(patch, world) -> dict:
     """All metrics for one (patch, world) -- the per-row record for the study."""
     return {

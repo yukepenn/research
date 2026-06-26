@@ -48,10 +48,13 @@ class V2World:
     post_values: dict = field(default_factory=dict)  # eval only
 
     def r0_view(self) -> dict:
-        """What a METHOD may see: report claims (text/value/citation) + sources +
-        the observable delta. NO parents, NO formulas, NO gold, NO post values."""
+        """The SANITIZED public input a method may see: report claims (id/text/value/
+        CITATION — citations are legitimate report content), the cited sources, and the
+        observable delta. NO claim.kind, NO claim.source, NO parents, NO formulas, NO
+        gold sets, NO post-update values. A method must take THIS dict, never the World."""
         return {
-            "claims": [{"id": c.cid, "text": c.text, "value": c.claims_value_str()}
+            "claims": [{"id": c.cid, "text": c.text, "value": c.claims_value_str(),
+                        "citation": c.citation}
                        for c in (self.claims[cid] for cid in self.report_claims)],
             "sources": {s: {"value": v["value"], "status": v["status"]}
                         for s, v in self.sources.items()},
@@ -170,15 +173,17 @@ def generate_world_v2(seed: int = 0, delta_type: str = "numeric_revision",
         order.append(cid)
         avail.append(cid)
 
-    # a couple of irrelevant fact distractors (must be preserved)
+    # a couple of irrelevant fact distractors (must be preserved); their sources are
+    # visible (in the report) but never in the delta.
     for k in range(rng.randint(1, 2)):
         cid = f"f{k}"
+        sources[f"sf{k}"] = {"value": f"city-{k}", "status": "active"}
         claims[cid] = V2Claim(cid, "fact", f"The reporting office is in city-{k}.", f"city-{k}",
-                              citation=f"sf{k}")
+                              source=f"sf{k}", citation=f"sf{k}")
         order.append(cid)
 
-    # ---- apply delta (observable) ----
-    changed_src = rng.choice([sources_id for sources_id in sources])
+    # ---- apply delta (observable) -- always targets a BASE source ----
+    changed_src = rng.choice([claims[c].source for c in base_ids])
     target_base = next(c for c in base_ids if claims[c].source == changed_src)
     delta = {"type": delta_type, "changed": {}, "retracted": []}
     if delta_type == "source_retraction":
@@ -215,15 +220,14 @@ def generate_world_v2(seed: int = 0, delta_type: str = "numeric_revision",
 def generate_worlds_v2(n: int = 20, seed0: int = 0,
                        delta_types=("numeric_revision", "source_retraction"),
                        style: str = "named") -> list[V2World]:
+    # One delta per seed -> each world is an INDEPENDENT graph (valid bootstrap cluster).
     out = []
     i = seed0
     while len(out) < n:
-        for dt in delta_types:
-            w = generate_world_v2(i, dt, style)
-            # keep only worlds with a non-trivial downstream cascade (>=1 derived in A)
-            if any(w.claims[c].kind not in ("base", "fact") for c in w.gold_A):
-                out.append(w)
-            if len(out) >= n:
-                break
+        dt = delta_types[i % len(delta_types)]
+        w = generate_world_v2(i, dt, style)
+        # keep only worlds with a non-trivial downstream cascade (>=1 derived in A)
+        if any(w.claims[c].kind not in ("base", "fact") for c in w.gold_A):
+            out.append(w)
         i += 1
     return out

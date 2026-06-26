@@ -1,43 +1,37 @@
-# P3 DeltaResearch — Terminal Decision
+# P3 DeltaResearch — Terminal Decision (revised after adversarial implementation audit)
 
-**Terminal state: `ARXIV_ONLY`** (strong controlled, no-gold result; the real-evidence layer +
-human adjudication required for a full TACL submission are not yet done).
+**Terminal state: `HOLD-CORRECT-MAJOR`** (was ARXIV_ONLY — downgraded). A strong synthetic proof of
+concept whose "no-gold" claim was OVERSTATED due to hidden-metadata leakage and whose metric/stats/
+generator have correctable defects. **Do NOT post to arXiv or submit to TACL/TMLR** until the
+correction gates pass and the de-leaked result is re-confirmed.
 
-**Target venue:** TACL (after the real-evidence layer). Now: a strong controlled-study technical
-report suitable for arXiv, honestly labeled as a controlled, no-gold pilot.
+See `CORRECTION_AUDIT.md` for the full accepted findings. The audit was correct on all code-level points
+(verified against the live code): the method read `claim.kind`/`claim.source` from the World; ACR is
+ID-recall not report correctness; the gold shared the method's calculator; topology labels were
+cosmetic; clustering double-counted shared graphs.
 
-**One-sentence supported claim:**
-> On controlled evidence-world updates, a no-gold end-to-end pipeline that infers claim
-> dependencies from report text and recomputes downstream values with a deterministic calculator
-> substantially and significantly improves affected-claim recall over naive report revision —
-> without using gold dependency graphs or gold post-update values.
+## Corrections applied this sprint
+- Method now takes ONLY the sanitized public view (`r0_view`: claims id/text/value/CITATION, sources,
+  observable delta) — never the World. Roles + claim→source inferred from VISIBLE citations.
+  Enforced by a leakage test (`test_p3_v2_audit`). [`claimpatch_v2.py`]
+- Independent calculator (`_calc`, not the generator's `_compute`), cross-validated on 2000 inputs.
+- Primary metric = **Correct Update Recall** (identified AND correct new value/status; no vacuous 1.0).
+- One delta per seed → `world_id` is an independent graph (valid cluster); CIs recomputed.
+- 105 deterministic tests green.
 
-**Strongest result (with CI):** pipeline − naive affected-claim recall, world-clustered bootstrap,
-n=24 worlds, real Claude+Codex:
-- named reports: Claude +0.75 [0.58, 0.92], Codex +0.46 [0.25, 0.67] (pipeline ACR 1.00 vs naive 0.25/0.54).
-- vague reports (operation hidden): Claude +0.92 [0.79, 1.00], Codex +0.48 [0.29, 0.69].
-- mechanism (stage diagnostic): inferred-vs-gold edge precision/recall 1.00; op accuracy 0.96–1.00.
+## Decisive re-run (in progress)
+The corrected, de-leaked pipeline is being re-run vs naive on real Claude+Codex. **If it still beats
+naive on Correct Update Recall, the result survives (corrected) and P3 can re-enter ARXIV_ONLY
+consideration. If it collapses, P3 stays HOLD and the claim is reported as not surviving de-leaking.**
 
-**Strongest counterexample / honest limit:** the result is on synthetic controlled worlds whose claim
-texts NAME the parent entities (operation may be hidden, but parents are not). A fully-implicit report
-with unnamed parents is underdetermined and untested; no real versioned-evidence layer or human
-adjudication yet; single draw per condition; numeric + retraction deltas only; 2 model families.
+## Still required before any SUBMIT_READY (deferred, larger)
+True topology constructors; real end-to-end prose rewrite + citation update + verification; factorial
+gold-component ablation (source-link / graph / op / value); scaffolded baselines (checklist, scratchpad-
+calculator, formula-extraction-no-graph, deterministic op-solver, full regen, graph+LLM-arithmetic);
+ordered-parent / full-expression stage diagnostic; harder vague (unnamed parents, ambiguous ops,
+decoys, abstain); real versioned-evidence layer + 2-annotator adjudication; FRUIT/EditPropBench
+head-to-head; reframe "Deep Research Agents" → "LLM-based report revision"; pinned model builds +
+repeats + CI on HEAD + independent reproduction.
 
-**Remaining blockers to `SUBMIT_READY` (TACL):**
-1. Real versioned-evidence layer (public, licensed, timestamped) with 2-annotator adjudication.
-2. Unnamed-parent / fully-implicit report stress (the harder inference regime).
-3. More delta types (conflict, temporal expiry, unit change, definition change) + repeats with CIs.
-4. Official TACL LaTeX + citation-entailment audit + independent reproduction.
-
-**Exact human decisions required:**
-- Approve the central claim wording and the TACL target.
-- Approve (or not) an arXiv posting of the controlled pilot — external posting is a human gate.
-- Author list, license, ethics/data statement, AI-assistance disclosure sign-off.
-
-**arXiv posting recommended now?** The RESULT is strong enough to stand as an honest controlled
-no-gold pilot, but recommend posting only AFTER: official LaTeX build, citation-entailment audit,
-independent reproduction, and your sign-off. Not auto-posted.
-
-**Confidence in this decision:** High that the controlled no-gold effect is real and reproducible
-(4 CIs exclude 0, clean mechanism, deterministic core verified). Moderate that it transfers to real
-versioned evidence (the gated next step).
+**arXiv now? NO.** **Confidence:** the corrected core is sound; whether the no-gold EFFECT survives
+de-leaking is exactly what the in-progress re-run tests. Draft claims FROZEN until it lands.
