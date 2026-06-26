@@ -1,5 +1,13 @@
 # Wrap-up Dashboard — post-pilot sprint (started 2026-06-25)
 
+## TERMINAL DECISIONS (final)
+- **P3 DeltaResearch → ARXIV_ONLY** — genuine no-gold ClaimPatch result (pipeline 1.00 vs naive 0.08–0.54; 4 CIs exclude 0). The real win. See papers/p3_deltaresearch/DECISION.md.
+- **P1 ToolMorph → ARXIV_ONLY** — verified equivalence benchmark + clean negative result; STNF method RETIRED by its info-matched control. See papers/p1_toolmorph/DECISION.md.
+- **P2 CrossCheck → HOLD** — hard corpus still one-shot-solved; can't discriminate workflows. See papers/p2_crosscheck/DECISION.md.
+- Full writeup: program/status/wrapup-final-2026-06-25.md. No external action without human sign-off.
+
+
+
 Terminal goal per paper: exactly one of SUBMIT_READY / ARXIV_ONLY / HOLD / KILL.
 Constraints: no metered API (Claude+Codex subscriptions only); no external submission / arXiv /
 publish / license / authorship sign-off without the human PI. A compiled PDF ≠ SUBMIT_READY.
