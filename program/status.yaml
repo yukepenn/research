@@ -17,7 +17,7 @@ portfolio:
     pilot_evidence: "Real Claude+Codex: all workflows tie at 0.80 (no_review=author_more_compute=cross_family_review). Corpus at ceiling (8/10 one-shot); 2 non-1.0 cases were underspecified BENCHMARK BUGS (fixed, excluded). H2 PARTIAL/underpowered. Weakest of the three pilots; methodology + corpus-difficulty diagnosis are the contributions. See papers/p2_crosscheck/evidence/pilot_2026-06-25.md"
     novelty_note: "cc02(KDD'26) owns bidirectional 2x2. Survival=conjunction: budget-matched author-extra-compute arm + defect-type complementarity + pre-call held-out router."
   p3_deltaresearch:
-    state: HOLD-CORRECT-MAJOR  # audit found hidden-metadata leakage; no-gold overstated; corrected + re-running
+    state: HOLD  # de-leaked re-run: pipeline-naive CIs include 0; method advantage did NOT survive. Structure-inference capability (H4c) real.
     confidence: 0.55
     active_issues: [P3-PILOT-done-strong, P3-ERROR-DECOMP, P3-REAL-LAYER, P3-HDIVERGE-quantify, P3-DRAFT-done]
     blockers: ["real versioned-evidence layer + human adjudication are gated next steps"]
