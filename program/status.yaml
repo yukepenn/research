@@ -1,7 +1,7 @@
 program_date: "2026-06-25"
 portfolio:
   p1_toolmorph:
-    state: ARXIV_ONLY  # terminal: benchmark + negative result; STNF retired
+    state: INTERNAL_ARTIFACT  # benchmark + ceiling-limited null (audit); STNF retired; not a strong preprint
     confidence: 0.40
     active_issues: [P1-PILOT-INTERACTIVE-done, P1-SCALE, P1-STNF-RECOVERY, P1-RANKING]
     blockers: []

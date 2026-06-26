@@ -1,8 +1,17 @@
-# P1 ToolMorph — Terminal Decision
+# P1 ToolMorph — Terminal Decision (revised after audit)
 
-**Terminal state: `ARXIV_ONLY`** — as a (1) property-verified state-transition-equivalence benchmark
-plus (2) a clean NEGATIVE result. The proposed STNF method is **retired** (its premise is falsified by
-the paper's own information-matched control). NOT a method paper.
+**Terminal state: `INTERNAL_ARTIFACT` / optional short note** (downgraded from ARXIV_ONLY per the
+implementation audit). The verified equivalence benchmark is a reusable asset, but the empirical
+result is a CEILING-LIMITED null (10 easy tasks, baseline 1.00, the one effect non-significant), so a
+standalone strong preprint has low academic value. The STNF method remains **retired** (premise
+falsified by the information-matched control). NOT a method paper.
+
+**Audit corrections accepted:** "frontier agents are robust to representation changes" is OVERSTATED;
+the honest statement is "we observed no degradation from the tested information-preserving transforms
+in this ceiling-limited pilot." The enum-legend control also adds description length / explicit
+mapping confounds; a rigorous version needs a same-length irrelevant-legend placebo, a wrong-legend
+negative control, randomized code assignment, codebook in a separate tool doc, and harder non-ceiling
+tasks. None of that is done; the benchmark code is kept, the claim is not pushed.
 
 **Target venue:** none for a method claim. The benchmark + negative result is a coherent, honest
 technical report suitable for arXiv (or a short benchmarks/negative-results venue), clearly labeled.

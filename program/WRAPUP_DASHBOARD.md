@@ -1,10 +1,15 @@
 # Wrap-up Dashboard — post-pilot sprint (started 2026-06-25)
 
-## TERMINAL DECISIONS (final)
-- **P3 DeltaResearch → ARXIV_ONLY** — genuine no-gold ClaimPatch result (pipeline 1.00 vs naive 0.08–0.54; 4 CIs exclude 0). The real win. See papers/p3_deltaresearch/DECISION.md.
-- **P1 ToolMorph → ARXIV_ONLY** — verified equivalence benchmark + clean negative result; STNF method RETIRED by its info-matched control. See papers/p1_toolmorph/DECISION.md.
-- **P2 CrossCheck → HOLD** — hard corpus still one-shot-solved; can't discriminate workflows. See papers/p2_crosscheck/DECISION.md.
-- Full writeup: program/status/wrapup-final-2026-06-25.md. No external action without human sign-off.
+## TERMINAL DECISIONS (final, post-audit 2026-06-26)
+- **P3 DeltaResearch → HOLD** — the no-gold advantage was an ARTIFACT of hidden-metadata leakage + an
+  ID-recall metric + a citation-deprived naive baseline (external audit, accepted). De-leaked re-run:
+  pipeline−naive NOT significant (CIs include 0). Structure-inference capability is real but yields no
+  significant end-to-end win. See DECISION.md + CORRECTION_AUDIT.md + evidence/claimpatch_corrected_2026-06-26.md.
+- **P1 ToolMorph → INTERNAL_ARTIFACT** — verified equivalence benchmark + ceiling-limited null; STNF retired.
+- **P2 CrossCheck → HOLD** — controlled corpus can't discriminate frontier models.
+- **P4 HarnessGuard → KILLED**.
+- **Honest bottom line: no submittable paper currently.** The gates + audit prevented a false claim.
+  Full writeup (with the superseded 06-25 record): program/status/wrapup-final-2026-06-25.md. No external action without human sign-off.
 
 
 

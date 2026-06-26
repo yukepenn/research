@@ -1,4 +1,28 @@
-# Wrap-up Sprint — Final Terminal Outcome (2026-06-25)
+# Wrap-up Sprint — Final Terminal Outcome
+
+> **POST-AUDIT REVISION (2026-06-26).** An external adversarial implementation audit found that P3's
+> "no-gold" headline was inflated by hidden-metadata leakage (`claim.kind`/`claim.source` read from
+> the World), an ID-recall metric, and a citation-deprived naive baseline. All accepted and fixed.
+> The corrected, de-leaked re-run shows the pipeline−naive advantage is **NOT significant** (Correct
+> Update Recall, n=24: Claude +0.076 [0,0.17], Codex +0.052 [0,0.15] — CIs include 0). **Revised
+> terminal states below.** The earlier 2026-06-25 ARXIV_ONLY/strong-result framing for P3 is RETRACTED.
+>
+> | Paper | Revised terminal | Honest one-line |
+> |---|---|---|
+> | **P3 DeltaResearch** | **HOLD** | No-gold method advantage was an artifact of leakage+metric; structure-inference capability is real (full-expression-exact 1.0) but yields no significant end-to-end win vs a citation-equipped naive baseline (near-ceiling 0.92–0.95). Path: harder off-ceiling tasks + real evidence layer. |
+> | **P1 ToolMorph** | **INTERNAL_ARTIFACT** | Verified equivalence benchmark (reusable) + a ceiling-limited null; STNF retired. Low value as a standalone preprint; "robust" claim softened. |
+> | **P2 CrossCheck** | **HOLD** | Controlled corpus can't discriminate frontier models. |
+> | **P4 HarnessGuard** | **KILLED** | Evidence-driven (feasibility/falsification). |
+>
+> **Honest bottom line: there is currently NO submittable paper.** What exists is a clean, well-
+> instrumented research infrastructure; a set of honest negative/hold results; and a documented,
+> gated path for P3 (the only candidate worth continuing). The value of this sprint is that the
+> deterministic gates + the external audit prevented a false "no-gold perfect updating" claim from
+> being published. The 2026-06-25 sections below are preserved as the (now-superseded) record.
+
+---
+
+# Wrap-up Sprint — Final Terminal Outcome (2026-06-25, SUPERSEDED by the post-audit revision above)
 
 Three papers, each driven to a terminal decision per the master directive. Zero metered API cost
 (Claude + Codex/gpt-5.5 subscriptions). No external submission/arXiv/publish without human sign-off
